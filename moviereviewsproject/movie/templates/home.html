@@ -1,5 +1,4 @@
-<head>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous"></head>
+<body>
 <h1>Welcome to the Home page, {{name}}</h1>
 <h2>This is the full home page</h2>
 <div class="container">
@@ -23,6 +22,8 @@ columnas en pantallas grandes-->
         <div class="card-body">
             <h5 class="card-title">{{ movie.title }}</h5>
             <p class="card-text">{{ movie.description }}</p>
+            <p class="card-text">{{ movie.genre }}</p>
+            <p class="card-text">{{ movie.year }}</p>
             {% if movie.url %}
             <a href="{{ movie.url }}" class="btn btn-primary">Movie Link</a>
             {% endif %}
@@ -30,7 +31,7 @@ columnas en pantallas grandes-->
                 </div>
             </div>
 {% endfor %}
-    </div>
+    <!--</div>
     <p>Searching for {{searchTerm}}</p>
     {% for movie in movies %}
         <h2>{{ movie.title }}</h2>
@@ -41,4 +42,5 @@ columnas en pantallas grandes-->
         {% endif %}
     {% endfor %}
     <br/>
-</div>
+</div>-->
+</body>
