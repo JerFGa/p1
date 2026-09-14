@@ -4,3 +4,13 @@ __pycache__/
 db.sqlite3
 *.pyo
 .DS_Store
+
+# Documentos
+*.pdf
+*.odt
+*.docx
+
+# Recursos de imágenes
+evidenciasEntrega2/
+evidencias/
+wiki/
