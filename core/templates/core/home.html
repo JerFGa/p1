@@ -1,17 +1,217 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>P1 - Home</title>
-</head>
-<body>
-    <h1>Proyectos</h1>
-    {% for project in projects %}
-        <div>
-            <h2>{{ project.name }}</h2>
-            <p>{{ project.description }}</p>
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - FinancialRAG{% endblock %}
+
+{% block content %}
+<header class="flex items-center justify-between px-6 py-3 flex-shrink-0" style="border-bottom: 1px solid #0d2040; background: #040d1a; min-height: 64px;">
+    <div>
+        <h1 class="text-sm font-semibold text-white">Financial News Assistant</h1>
+        <p class="text-xs" style="color: #334155;">Powered by RAG · Real-time market intelligence</p>
+    </div>
+    <div class="flex items-center gap-4">
+        <div class="text-xs px-3 py-1.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Session #4821</div>
+        <button id="newChatBtn" class="text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">New chat</button>
+    </div>
+</header>
+
+<div id="messages" class="flex-1 overflow-y-auto px-6 py-5"></div>
+
+<div id="chips" class="px-6 pb-3 flex flex-wrap gap-2">
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Analyze AMZN</button>
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Analyze TSLA</button>
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Fed Meeting Summary</button>
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Compare AAPL vs MSFT</button>
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Top movers this week</button>
+</div>
+
+<div class="px-6 pb-5 flex-shrink-0" style="border-top: 1px solid #0d2040; padding-top: 16px;">
+    <div class="flex items-end gap-3 rounded-2xl px-4 py-3" style="background: #071428; border: 1px solid #132c57;">
+        <textarea id="chatInput" rows="1" placeholder="Ask about any stock, market news, or financial event…" class="flex-1 bg-transparent resize-none outline-none text-sm leading-relaxed" style="color: #e2e8f0; max-height: 120px; min-height: 24px; caret-color: #34d399; font-family: Inter, sans-serif;"></textarea>
+        <button id="sendBtn" class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed" style="background: #132c57; color: #475569;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+        </button>
+    </div>
+    <p class="text-center text-xs mt-2" style="color: #0d2040;">Enter to send · Shift+Enter for new line</p>
+</div>
+
+<div id="referenceModal" class="fixed inset-0 hidden items-center justify-center z-50 p-6" style="background: rgba(4,13,26,0.85); backdrop-filter: blur(4px);">
+    <div class="w-full max-w-md rounded-2xl overflow-hidden" style="background: #071428; border: 1px solid #1a3a6e;">
+        <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #0d2040;">
+            <div class="flex items-center gap-3">
+                <span id="modalNum" class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;"></span>
+                <span class="text-xs font-semibold" style="color: #94a3b8;">Reference Detail</span>
+            </div>
+            <button id="closeModal" class="w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all duration-150" style="color: #334155; border: 1px solid #0d2040;">×</button>
         </div>
-    {% empty %}
-        <p>No hay proyectos disponibles.</p>
-    {% endfor %}
-</body>
-</html>
+        <div class="px-5 py-4">
+            <h3 id="modalTitle" class="text-sm font-semibold leading-snug mb-3" style="color: #e2e8f0;"></h3>
+            <div class="flex items-center gap-3 mb-4">
+                <span id="modalSource" class="text-xs px-2.5 py-1 rounded-full" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;"></span>
+                <span id="modalDate" class="text-xs" style="color: #334155;"></span>
+                <span id="modalConfidence" class="ml-auto text-xs px-2.5 py-1 rounded-full font-medium"></span>
+            </div>
+            <div id="modalSnippet" class="rounded-xl p-4 text-sm leading-relaxed" style="background: #040d1a; border: 1px solid #0d2040; color: #94a3b8;"></div>
+            <div class="mt-4 flex gap-2">
+                <button class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article ↗</button>
+                <button id="dismissModal" class="text-xs px-4 py-2 rounded-xl transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Dismiss</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const AMZN_CITATIONS = [
+    { num: 1, title: 'AWS Revenue Hits Record $24.2B in Q4', source: 'Reuters', date: 'Jan 3, 2025', snippet: 'Amazon Web Services reported record quarterly revenue of $24.2 billion, a 19% year-over-year increase, driven by AI infrastructure demand and enterprise cloud migrations.', confidence: 'High' },
+    { num: 2, title: 'Amazon Prime Membership Tops 200M Globally', source: 'Bloomberg', date: 'Jan 5, 2025', snippet: 'Amazon disclosed Prime membership surpassed 200 million globally, with strong retention in North America and accelerating growth across Latin America.', confidence: 'High' },
+    { num: 3, title: 'AMZN Advertising Revenue Grows 27% YoY', source: 'WSJ', date: 'Jan 7, 2025', snippet: "Amazon's advertising segment hit $14.6B for the quarter, now its third-largest business unit, benefiting from Prime Video ad-supported tier launch.", confidence: 'Medium' }
+];
+
+const TSLA_CITATIONS = [
+    { num: 1, title: 'Tesla Q4 Deliveries Miss Estimates at 484,507', source: 'CNBC', date: 'Jan 2, 2025', snippet: 'Tesla delivered 484,507 vehicles in Q4 2024, slightly below analyst consensus of 510,000. Price cuts and rising competition in China were cited as key headwinds.', confidence: 'High' },
+    { num: 2, title: 'FSD v12.5 Beta Shows 40% Fewer Interventions', source: 'Electrek', date: 'Dec 28, 2024', snippet: "Tesla's Full Self-Driving version 12.5 beta testers report roughly 40% fewer manual interventions versus v12.3, marking significant AI model improvement.", confidence: 'Medium' }
+];
+
+let messages = [{ id: 0, role: 'agent', text: "Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from 42 real-time sources for you.", ts: formatTime(new Date()) }];
+let loading = false;
+
+function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
+
+function buildReply(text) {
+    const t = text.toLowerCase();
+    if (t.includes('amzn') || t.includes('amazon')) {
+        return { text: "Amazon (AMZN) shows strong momentum across all three major segments. AWS continues its record-breaking trajectory [1], while Prime membership milestones signal robust consumer retention [2]. Advertising revenue growth is accelerating faster than analysts projected [3], now representing a $58B annual run rate.", citations: AMZN_CITATIONS, showChart: 'AMZN' };
+    }
+    if (t.includes('tsla') || t.includes('tesla')) {
+        return { text: "Tesla (TSLA) faces near-term delivery headwinds [1], but technological progress on autonomy remains a key differentiator [2]. Analyst consensus remains cautiously optimistic with a median 12-month target of $195. Margins are the key variable to watch in Q1 earnings.", citations: TSLA_CITATIONS, showChart: 'TSLA' };
+    }
+    if (t.includes('fed') || t.includes('fomc')) {
+        return { text: "The Federal Reserve held the federal funds rate at 5.25–5.50% in its latest FOMC meeting. Chair Powell emphasized patience before rate cuts, citing core PCE still running above the 2% target. Markets are pricing approximately two 25bp cuts by December 2025." };
+    }
+    return { text: `I searched the FinancialRAG pipeline for "${text}". The latest news index shows mixed signals — institutional sentiment is slightly bullish while retail flows remain neutral. I recommend monitoring upcoming earnings reports and macro releases for clearer directional signals.` };
+}
+
+function renderMessages() {
+    const container = document.getElementById('messages');
+    container.innerHTML = messages.map(msg => {
+        const isUser = msg.role === 'user';
+        const avatarStyle = isUser ? "background: linear-gradient(135deg, #059669, #10b981); color: #040d1a;" : "background: #0d2040; color: #34d399; border: 1px solid #1a3a6e;";
+        const avatarText = isUser ? 'U' : 'FR';
+        const bubbleStyle = isUser ? "background: linear-gradient(135deg, #132c57, #1a3a6e); color: #e2e8f0; border: 1px solid #1e4585;" : "background: #0d2040; border: 1px solid #1a3a6e; color: #cbd5e1;";
+        const borderRadius = isUser ? "rounded-2xl rounded-tr-sm" : "rounded-2xl rounded-tl-sm";
+        const flexDir = isUser ? "flex-row-reverse" : "";
+        const alignClass = isUser ? "items-end max-w-[60%]" : "items-start w-full max-w-2xl";
+
+        let content = `<div class="text-sm leading-relaxed">${msg.text}</div>`;
+        if (msg.citations) {
+            content = `
+                <div class="font-medium text-xs mb-2 flex items-center gap-2" style="color: #34d399;">
+                    <span>▦</span> AI Analysis
+                    <span class="ml-auto text-xs px-2 py-0.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">${msg.citations.length} sources</span>
+                </div>
+                <p>${msg.text.replace(/\[(\d+)\]/g, (m, n) => `<button class="citation-badge" data-num="${n}" style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; font-size: 10px; font-weight: bold; margin: 0 2px; background: #132c57; color: #34d399; border: 1px solid #1a3a6e; cursor: pointer; vertical-align: super;">${n}</button>`)}</p>
+                <div class="rounded-xl overflow-hidden mt-3" style="border: 1px solid #0d2040;">
+                    <div class="px-3 py-2 text-xs font-semibold flex items-center gap-2" style="background: #071428; color: #64748b; border-bottom: 1px solid #0d2040;"><span>◎</span> References</div>
+                    ${msg.citations.map(c => `
+                        <button class="ref-item w-full flex items-start gap-3 px-3 py-2.5 text-left transition-all duration-150" data-citation='${JSON.stringify(c)}' style="background: #040d1a; border-bottom: 1px solid #071428;">
+                            <span class="flex-shrink-0 w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold mt-0.5" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">${c.num}</span>
+                            <div class="min-w-0">
+                                <div class="text-xs font-medium truncate" style="color: #94a3b8;">${c.title}</div>
+                                <div class="text-xs mt-0.5" style="color: #334155;">${c.source} · ${c.date}</div>
+                            </div>
+                            <span class="flex-shrink-0 text-[10px] px-1.5 py-0.5 rounded-full font-medium ml-auto" style="background: ${c.confidence === 'High' ? '#052e16' : '#1c1917'}; color: ${c.confidence === 'High' ? '#34d399' : '#a8a29e'}; border: 1px solid ${c.confidence === 'High' ? '#059669' : '#44403c'};">${c.confidence}</span>
+                        </button>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        return `
+            <div class="flex items-start gap-3 mb-5 ${flexDir}">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold" style="${avatarStyle}">${avatarText}</div>
+                <div class="flex flex-col gap-1 ${alignClass}">
+                    <div class="${borderRadius} px-4 py-3 ${bubbleStyle}">${content}</div>
+                    <span class="text-xs px-1" style="color: #1e3a5f;">${msg.ts}</span>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    if (loading) {
+        container.innerHTML += `
+            <div class="flex items-start gap-3 mb-5">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 text-xs font-bold" style="background: #0d2040; color: #34d399; border: 1px solid #1a3a6e;">FR</div>
+                <div class="rounded-2xl rounded-tl-sm px-4 py-3" style="background: #0d2040; border: 1px solid #1a3a6e;">
+                    <div class="flex gap-1.5 items-center" style="height: 20px;">
+                        <span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background: #34d399; animation-delay: 0ms;"></span>
+                        <span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background: #34d399; animation-delay: 150ms;"></span>
+                        <span class="w-1.5 h-1.5 rounded-full animate-bounce" style="background: #34d399; animation-delay: 300ms;"></span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    document.getElementById('chips').style.display = messages.length === 1 && !loading ? 'flex' : 'none';
+}
+
+function send(text) {
+    if (!text.trim() || loading) return;
+    const now = new Date();
+    messages.push({ id: Date.now(), role: 'user', text: text.trim(), ts: formatTime(now) });
+    document.getElementById('chatInput').value = '';
+    loading = true;
+    renderMessages();
+
+    setTimeout(() => {
+        const reply = buildReply(text);
+        messages.push({ id: Date.now() + 1, role: 'agent', ts: formatTime(new Date()), ...reply });
+        loading = false;
+        renderMessages();
+    }, 1500);
+}
+
+function showCitationModal(citation) {
+    document.getElementById('modalNum').textContent = citation.num;
+    document.getElementById('modalTitle').textContent = citation.title;
+    document.getElementById('modalSource').textContent = citation.source;
+    document.getElementById('modalDate').textContent = citation.date;
+    document.getElementById('modalSnippet').textContent = citation.snippet;
+    const confEl = document.getElementById('modalConfidence');
+    confEl.textContent = 'Confidence: ' + citation.confidence;
+    confEl.style.background = citation.confidence === 'High' ? '#052e16' : '#1c1917';
+    confEl.style.color = citation.confidence === 'High' ? '#34d399' : '#a8a29e';
+    confEl.style.border = '1px solid ' + (citation.confidence === 'High' ? '#059669' : '#44403c');
+    document.getElementById('referenceModal').style.display = 'flex';
+}
+
+document.getElementById('sendBtn').addEventListener('click', () => send(document.getElementById('chatInput').value));
+document.getElementById('chatInput').addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(e.target.value); }});
+document.getElementById('newChatBtn').addEventListener('click', () => { messages = [messages[0]]; renderMessages(); });
+document.getElementById('closeModal').addEventListener('click', () => document.getElementById('referenceModal').style.display = 'none');
+document.getElementById('dismissModal').addEventListener('click', () => document.getElementById('referenceModal').style.display = 'none');
+document.getElementById('referenceModal').addEventListener('click', e => { if (e.target.id === 'referenceModal') e.currentTarget.style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') document.getElementById('referenceModal').style.display = 'none'; });
+
+document.addEventListener('click', e => {
+    if (e.target.classList.contains('citation-badge') || e.target.classList.contains('ref-item')) {
+        const num = e.target.dataset.num;
+        const msg = messages.find(m => m.citations && m.citations.find(c => c.num == num));
+        if (msg) {
+            const citation = msg.citations.find(c => c.num == num);
+            showCitationModal(citation);
+        }
+    }
+});
+
+document.querySelectorAll('.chip-btn').forEach(btn => {
+    btn.addEventListener('click', () => send(btn.textContent));
+});
+
+renderMessages();
+</script>
+{% endblock %}

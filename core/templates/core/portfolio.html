@@ -1,0 +1,155 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Portfolio - FinancialRAG{% endblock %}
+
+{% block content %}
+<div class="flex-1 overflow-y-auto px-6 py-5">
+    <div class="mb-5">
+        <h2 class="text-base font-semibold text-white">Portfolio</h2>
+        <p class="text-xs mt-0.5" style="color: #334155;">Last updated Jan 30, 2025 · 09:42 EST</p>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3 mb-5">
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Total Value</div>
+            <div class="text-xl font-bold" style="color: #34d399;">$97,284</div>
+            <div class="text-xs mt-1" style="color: #475569;">across 6 positions</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Daily Change</div>
+            <div class="text-xl font-bold" style="color: #34d399;">+$1,842</div>
+            <div class="text-xs mt-1" style="color: #475569;">+1.93% today</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Unrealized P&L</div>
+            <div class="text-xl font-bold" style="color: #34d399;">+$13,084</div>
+            <div class="text-xs mt-1" style="color: #475569;">since inception</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">AI Avg Sentiment</div>
+            <div class="text-xl font-bold text-white">77 / 100</div>
+            <div class="text-xs mt-1" style="color: #475569;">portfolio bullishness</div>
+        </div>
+    </div>
+
+    <div class="rounded-xl mb-5 overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
+            <span class="text-sm font-medium" style="color: #94a3b8;">Performance Overview</span>
+            <span class="text-xs px-2 py-1 rounded-full" style="background: #052e16; color: #34d399; border: 1px solid #059669;">+18.4% YTD</span>
+        </div>
+        <div style="padding: 12px 4px 4px;">
+            <canvas id="perfChart" height="140"></canvas>
+        </div>
+    </div>
+
+    <div class="rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
+            <span class="text-sm font-medium" style="color: #94a3b8;">Asset Breakdown</span>
+            <span class="text-xs" style="color: #334155;">6 positions</span>
+        </div>
+
+        <div class="grid text-xs px-4 py-2" style="grid-template-columns: 1fr 1fr 80px 90px 80px 100px 120px; color: #334155; border-bottom: 1px solid #0d2040;">
+            <span>Ticker</span>
+            <span>Name</span>
+            <span class="text-right">Shares</span>
+            <span class="text-right">Price</span>
+            <span class="text-right">Change</span>
+            <span class="text-center">AI Sentiment</span>
+            <span></span>
+        </div>
+
+        {% for stock in stocks %}
+        <div class="grid items-center px-4 py-3 text-sm transition-all duration-150" style="grid-template-columns: 1fr 1fr 80px 90px 80px 100px 120px; border-bottom: 1px solid #071428;">
+            <span class="font-semibold font-mono" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">{{ stock.ticker }}</span>
+            <span class="text-xs" style="color: #64748b;">{{ stock.name }}</span>
+            <span class="text-right text-xs" style="color: #94a3b8;">{{ stock.shares }}</span>
+            <span class="text-right font-medium text-xs" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">${{ stock.price }}</span>
+            <span class="text-right text-xs font-medium" style="color: {% if stock.change >= 0 %}#34d399{% else %}#f87171{% endif %};">
+                {% if stock.change >= 0 %}+{% endif %}{{ stock.change }}%
+            </span>
+            <div class="flex justify-center">
+                <span class="text-[10px] px-2 py-1 rounded-full font-medium" style="background: {{ stock.sentiment_bg }}; color: {{ stock.sentiment_color }}; border: 1px solid {{ stock.sentiment_border }};">
+                    {{ stock.sentiment }}
+                </span>
+            </div>
+            <div class="flex justify-end">
+                <button class="alert-btn text-[10px] px-2.5 py-1 rounded-full transition-all duration-150" data-ticker="{{ stock.ticker }}" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">+ Create Alert</button>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const perfData = Array.from({ length: 30 }, (_, i) => ({
+    label: 'Jan ' + (i + 1),
+    value: 84200 + Math.sin(i * 0.5) * 2800 + i * 420
+}));
+
+const ctx = document.getElementById('perfChart').getContext('2d');
+const gradient = ctx.createLinearGradient(0, 0, 0, 140);
+gradient.addColorStop(0, 'rgba(52, 211, 153, 0.15)');
+gradient.addColorStop(1, 'rgba(52, 211, 153, 0)');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: perfData.map(d => d.label),
+        datasets: [{
+            data: perfData.map(d => d.value),
+            borderColor: '#34d399',
+            borderWidth: 2,
+            backgroundColor: gradient,
+            fill: true,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBackgroundColor: '#34d399',
+            pointHoverBorderColor: '#040d1a',
+            pointHoverBorderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0d2040',
+                borderColor: '#1a3a6e',
+                borderWidth: 1,
+                titleColor: '#64748b',
+                bodyColor: '#34d399',
+                callbacks: {
+                    label: ctx => '$' + ctx.parsed.y.toLocaleString()
+                }
+            }
+        },
+        scales: {
+            x: {
+                ticks: { font: { size: 9, family: 'Inter' }, color: '#334155', maxTicksLimit: 6 },
+                grid: { display: false },
+                border: { display: false }
+            },
+            y: {
+                ticks: { font: { size: 9, family: 'Inter' }, color: '#334155', callback: v => '$' + (v / 1000).toFixed(0) + 'k' },
+                grid: { display: false },
+                border: { display: false }
+            }
+        }
+    }
+});
+
+document.querySelectorAll('.alert-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        this.textContent = 'Alert set ✓';
+        this.style.background = '#052e16';
+        this.style.color = '#34d399';
+        this.style.border = '1px solid #059669';
+    });
+});
+</script>
+{% endblock %}

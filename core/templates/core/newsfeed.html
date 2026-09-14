@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}News Feed - FinancialRAG{% endblock %}
+
+{% block content %}
+<div class="flex-1 overflow-y-auto px-6 py-5">
+    <div class="mb-5">
+        <h2 class="text-base font-semibold text-white">News Feed</h2>
+        <p class="text-xs mt-0.5" style="color: #334155;">Real-time articles from 42 verified financial sources</p>
+    </div>
+
+    <div class="flex gap-2 mb-5 flex-wrap">
+        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150 active" data-filter="All Markets" style="background: linear-gradient(135deg, #059669, #10b981); color: #040d1a; border: 1px solid #059669;">All Markets</button>
+        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150" data-filter="Tech" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Tech</button>
+        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150" data-filter="Energy" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Energy</button>
+        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150" data-filter="Finance" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Finance</button>
+        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150" data-filter="Macro" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Macro</button>
+        <span id="articleCount" class="ml-auto text-xs self-center" style="color: #334155;">7 articles</span>
+    </div>
+
+    <div id="articles" class="flex flex-col gap-3">
+        {% for article in articles %}
+        <div class="article-card rounded-xl overflow-hidden transition-all duration-150" style="background: #071428; border: 1px solid #0d2040;" data-category="{{ article.category }}">
+            <div class="px-4 py-3">
+                <div class="flex items-start gap-3">
+                    <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-medium" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">{{ article.ticker }}</span>
+                            <span class="text-[10px]" style="color: #334155;">{{ article.category }}</span>
+                            <span class="text-[10px] ml-auto" style="color: #334155;">{{ article.time }} · {{ article.source }}</span>
+                        </div>
+                        <h3 class="text-sm font-medium leading-snug" style="color: #e2e8f0;">{{ article.headline }}</h3>
+                    </div>
+                </div>
+
+                <div class="summary-panel hidden mt-3 p-3 rounded-lg text-xs leading-relaxed" style="background: #040d1a; border: 1px solid #0d2040; color: #94a3b8;">
+                    <span class="text-[10px] font-semibold mb-1 block" style="color: #34d399;">▦ AI Summary</span>
+                    {{ article.summary }}
+                </div>
+
+                <div class="flex items-center gap-2 mt-3">
+                    <button class="summary-btn text-[10px] px-2.5 py-1 rounded-full transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">▦ AI Summary</button>
+                    <button class="text-[10px] px-2.5 py-1 rounded-full transition-all duration-150 ml-auto" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Read full ↗</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+let activeFilter = 'All Markets';
+
+document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        activeFilter = this.dataset.filter;
+        document.querySelectorAll('.filter-btn').forEach(b => {
+            b.style.background = '#071428';
+            b.style.color = '#64748b';
+            b.style.border = '1px solid #0d2040';
+        });
+        this.style.background = 'linear-gradient(135deg, #059669, #10b981)';
+        this.style.color = '#040d1a';
+        this.style.border = '1px solid #059669';
+
+        let count = 0;
+        document.querySelectorAll('.article-card').forEach(card => {
+            if (activeFilter === 'All Markets' || card.dataset.category === activeFilter) {
+                card.style.display = 'block';
+                count++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        document.getElementById('articleCount').textContent = count + ' articles';
+    });
+});
+
+document.querySelectorAll('.summary-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const panel = this.closest('.article-card').querySelector('.summary-panel');
+        if (panel.classList.contains('hidden')) {
+            panel.classList.remove('hidden');
+            this.textContent = '▲ Hide AI Summary';
+            this.style.background = '#132c57';
+            this.style.color = '#34d399';
+            this.style.border = '1px solid #1a3a6e';
+        } else {
+            panel.classList.add('hidden');
+            this.textContent = '▦ AI Summary';
+            this.style.background = '#0d2040';
+            this.style.color = '#64748b';
+            this.style.border = '1px solid #132c57';
+        }
+    });
+});
+</script>
+{% endblock %}

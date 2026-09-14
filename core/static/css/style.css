@@ -1,0 +1,55 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #040d1a;
+    color: #e2e8f0;
+    margin: 0;
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #1a3a6e;
+    border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #34d399;
+}
+
+.nav-item {
+    background: transparent;
+    color: #64748b;
+    border: 1px solid transparent;
+    text-decoration: none;
+}
+
+.nav-item:hover {
+    background: #0d2040;
+    color: #34d399;
+}
+
+.nav-item.active {
+    background: #132c57;
+    color: #34d399;
+    border: 1px solid #1a3a6e;
+}
+
+.sidebar-collapsed {
+    width: 64px !important;
+}
+
+.sidebar-collapsed .sidebar-text,
+.sidebar-collapsed .sidebar-status {
+    display: none;
+}

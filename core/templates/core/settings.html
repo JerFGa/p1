@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Settings - FinancialRAG{% endblock %}
+
+{% block content %}
+<div class="flex-1 overflow-y-auto px-6 py-5 max-w-2xl">
+    <div class="mb-5">
+        <h2 class="text-base font-semibold text-white">Settings</h2>
+        <p class="text-xs mt-0.5" style="color: #334155;">Configure your FinancialRAG experience</p>
+    </div>
+
+    <div class="rounded-xl overflow-hidden mb-4" style="background: #071428; border: 1px solid #0d2040;">
+        <div class="px-4 py-3 text-xs font-semibold" style="color: #64748b; border-bottom: 1px solid #0d2040;">Preferences</div>
+
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #071428;">
+            <div>
+                <div class="text-sm" style="color: #e2e8f0;">Push notifications</div>
+                <div class="text-xs mt-0.5" style="color: #334155;">Alert me on major market events</div>
+            </div>
+            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 active" data-setting="notif" style="background: #059669; border: 1px solid #059669;">
+                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="left: calc(100% - 16px);"></span>
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #071428;">
+            <div>
+                <div class="text-sm" style="color: #e2e8f0;">Auto AI summaries</div>
+                <div class="text-xs mt-0.5" style="color: #334155;">Summarize articles on the news feed automatically</div>
+            </div>
+            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 active" data-setting="autoSumm" style="background: #059669; border: 1px solid #059669;">
+                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="left: calc(100% - 16px);"></span>
+            </button>
+        </div>
+
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #071428;">
+            <div>
+                <div class="text-sm" style="color: #e2e8f0;">Dark mode</div>
+                <div class="text-xs mt-0.5" style="color: #334155;">Use dark color theme (recommended)</div>
+            </div>
+            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 active" data-setting="darkMode" style="background: #059669; border: 1px solid #059669;">
+                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="left: calc(100% - 16px);"></span>
+            </button>
+        </div>
+    </div>
+
+    <div class="rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
+        <div class="px-4 py-3 flex items-center justify-between" style="border-bottom: 1px solid #0d2040;">
+            <span class="text-xs font-semibold" style="color: #64748b;">News Sources</span>
+            <span id="sourceCount" class="text-xs" style="color: #334155;">4 active</span>
+        </div>
+        <div class="p-4 flex flex-wrap gap-2">
+            {% for source in all_sources %}
+            <button class="source-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150 {% if source.active %}active{% endif %}" data-source="{{ source.name }}" style="{% if source.active %}background: linear-gradient(135deg, #052e16, #064e3b); color: #34d399; border: 1px solid #059669;{% else %}background: #0d2040; color: #64748b; border: 1px solid #132c57;{% endif %}">
+                {% if source.active %}✓ {% endif %}{{ source.name }}
+            </button>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.querySelectorAll('.toggle-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const dot = this.querySelector('.toggle-dot');
+        if (this.classList.contains('active')) {
+            this.classList.remove('active');
+            this.style.background = '#132c57';
+            this.style.border = '1px solid #1a3a6e';
+            dot.style.left = '2px';
+        } else {
+            this.classList.add('active');
+            this.style.background = '#059669';
+            this.style.border = '1px solid #059669';
+            dot.style.left = 'calc(100% - 16px)';
+        }
+    });
+});
+
+function updateSourceCount() {
+    const count = document.querySelectorAll('.source-btn.active').length;
+    document.getElementById('sourceCount').textContent = count + ' active';
+}
+
+document.querySelectorAll('.source-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        if (this.classList.contains('active')) {
+            this.classList.remove('active');
+            this.textContent = this.dataset.source;
+            this.style.background = '#0d2040';
+            this.style.color = '#64748b';
+            this.style.border = '1px solid #132c57';
+        } else {
+            this.classList.add('active');
+            this.textContent = '✓ ' + this.dataset.source;
+            this.style.background = 'linear-gradient(135deg, #052e16, #064e3b)';
+            this.style.color = '#34d399';
+            this.style.border = '1px solid #059669';
+        }
+        updateSourceCount();
+    });
+});
+</script>
+{% endblock %}

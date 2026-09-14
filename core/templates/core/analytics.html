@@ -1,0 +1,210 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Analytics - FinancialRAG{% endblock %}
+
+{% block content %}
+<div class="flex-1 overflow-y-auto px-6 py-5">
+    <div class="flex items-center justify-between mb-5">
+        <div>
+            <h2 class="text-base font-semibold text-white">Analytics</h2>
+            <p class="text-xs mt-0.5" style="color: #334155;">User engagement & data source utilization</p>
+        </div>
+        <div class="flex gap-1 p-1 rounded-lg" style="background: #071428; border: 1px solid #0d2040;">
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="7d" style="background: transparent; color: #334155;">7d</button>
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150 active" data-range="14d" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">14d</button>
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="30d" style="background: transparent; color: #334155;">30d</button>
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="90d" style="background: transparent; color: #334155;">90d</button>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-4 gap-3 mb-5">
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Total Queries (14d)</div>
+            <div class="text-xl font-bold text-white">822</div>
+            <div class="text-xs mt-1" style="color: #34d399;">+34% vs prev period</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Avg Response Time</div>
+            <div class="text-xl font-bold text-white">1.4s</div>
+            <div class="text-xs mt-1" style="color: #34d399;">-12% vs prev period</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Articles Indexed</div>
+            <div class="text-xl font-bold text-white">18,432</div>
+            <div class="text-xs mt-1" style="color: #34d399;">+8% vs prev period</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Cache Hit Rate</div>
+            <div class="text-xl font-bold text-white">68%</div>
+            <div class="text-xs mt-1" style="color: #34d399;">+5pp vs prev period</div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-5 gap-4">
+        <div class="col-span-3 rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
+                <span class="text-sm font-medium" style="color: #94a3b8;">Query Volume</span>
+                <span id="rangeLabel" class="text-xs" style="color: #334155;">14d window</span>
+            </div>
+            <div style="padding: 12px 4px 4px;">
+                <canvas id="queryChart" height="200"></canvas>
+            </div>
+        </div>
+
+        <div class="col-span-2 rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
+            <div class="px-4 py-3" style="border-bottom: 1px solid #0d2040;">
+                <span class="text-sm font-medium" style="color: #94a3b8;">Source Utilization</span>
+            </div>
+            <div class="flex flex-col items-center py-2">
+                <canvas id="sourceChart" height="160"></canvas>
+                <div class="w-full px-4 pb-3">
+                    <div class="flex items-center justify-between text-xs py-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #34d399;"></span>
+                            <span style="color: #64748b;">Reuters</span>
+                        </div>
+                        <span style="color: #94a3b8;">28%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs py-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #10b981;"></span>
+                            <span style="color: #64748b;">Bloomberg</span>
+                        </div>
+                        <span style="color: #94a3b8;">22%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs py-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #059669;"></span>
+                            <span style="color: #64748b;">WSJ</span>
+                        </div>
+                        <span style="color: #94a3b8;">18%</span>
+                    </div>
+                    <div class="flex items-center justify-between text-xs py-1">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #1a3a6e;"></span>
+                            <span style="color: #64748b;">CNBC</span>
+                        </div>
+                        <span style="color: #94a3b8;">14%</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="rounded-xl overflow-hidden mt-4" style="background: #071428; border: 1px solid #0d2040;">
+        <div class="px-4 py-3" style="border-bottom: 1px solid #0d2040;">
+            <span class="text-sm font-medium" style="color: #94a3b8;">Recent Queries</span>
+        </div>
+        {% for query in queries %}
+        <div class="grid items-center px-4 py-2.5 text-xs transition-all duration-150" style="grid-template-columns: 2fr 80px 70px 80px 1fr; border-bottom: 1px solid #071428;">
+            <span style="color: #94a3b8;">{{ query.text }}</span>
+            <span style="color: #334155;">{{ query.time }}</span>
+            <span style="color: #34d399;">{{ query.latency }}</span>
+            <span style="color: #64748b;">{{ query.sources }} sources</span>
+            <span style="color: #334155;">{{ query.user }}</span>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const queryData = [
+    { day: 'Mon', queries: 34 }, { day: 'Tue', queries: 52 }, { day: 'Wed', queries: 41 },
+    { day: 'Thu', queries: 67 }, { day: 'Fri', queries: 89 }, { day: 'Sat', queries: 43 },
+    { day: 'Sun', queries: 28 }, { day: 'Mon', queries: 61 }, { day: 'Tue', queries: 78 },
+    { day: 'Wed', queries: 55 }, { day: 'Thu', queries: 92 }, { day: 'Fri', queries: 104 },
+    { day: 'Sat', queries: 47 }, { day: 'Sun', queries: 31 }
+];
+
+const sourceData = [
+    { name: 'Reuters', value: 28, color: '#34d399' },
+    { name: 'Bloomberg', value: 22, color: '#10b981' },
+    { name: 'WSJ', value: 18, color: '#059669' },
+    { name: 'CNBC', value: 14, color: '#1a3a6e' },
+    { name: 'FT', value: 10, color: '#132c57' },
+    { name: 'Others', value: 8, color: '#0d2040' }
+];
+
+new Chart(document.getElementById('queryChart'), {
+    type: 'line',
+    data: {
+        labels: queryData.map(d => d.day),
+        datasets: [{
+            data: queryData.map(d => d.queries),
+            borderColor: '#34d399',
+            borderWidth: 2,
+            tension: 0.4,
+            pointRadius: 0,
+            pointHoverRadius: 4,
+            pointHoverBackgroundColor: '#34d399',
+            pointHoverBorderColor: '#040d1a',
+            pointHoverBorderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0d2040',
+                borderColor: '#1a3a6e',
+                borderWidth: 1,
+                titleColor: '#64748b',
+                bodyColor: '#34d399',
+                callbacks: { label: ctx => ctx.parsed.y + ' queries' }
+            }
+        },
+        scales: {
+            x: { ticks: { font: { size: 9, family: 'Inter' }, color: '#334155' }, grid: { display: false }, border: { display: false } },
+            y: { ticks: { font: { size: 9, family: 'Inter' }, color: '#334155' }, grid: { display: false }, border: { display: false } }
+        }
+    }
+});
+
+new Chart(document.getElementById('sourceChart'), {
+    type: 'doughnut',
+    data: {
+        labels: sourceData.map(d => d.name),
+        datasets: [{
+            data: sourceData.map(d => d.value),
+            backgroundColor: sourceData.map(d => d.color),
+            borderWidth: 0
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '60%',
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                backgroundColor: '#0d2040',
+                borderColor: '#1a3a6e',
+                borderWidth: 1,
+                titleColor: '#34d399',
+                bodyColor: '#64748b',
+                callbacks: { label: ctx => ctx.parsed + '% of sources' }
+            }
+        }
+    }
+});
+
+document.querySelectorAll('.range-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.range-btn').forEach(b => {
+            b.style.background = 'transparent';
+            b.style.color = '#334155';
+            b.style.border = 'none';
+        });
+        this.style.background = '#132c57';
+        this.style.color = '#34d399';
+        this.style.border = '1px solid #1a3a6e';
+        document.getElementById('rangeLabel').textContent = this.dataset.range + ' window';
+    });
+});
+</script>
+{% endblock %}

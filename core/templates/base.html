@@ -1,0 +1,70 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}FinancialRAG{% endblock %}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+    <div class="flex h-screen overflow-hidden" style="background: #040d1a;">
+        <aside id="sidebar" class="flex flex-col flex-shrink-0 transition-all duration-300" style="width: 220px; background: linear-gradient(180deg, #071428 0%, #040d1a 100%); border-right: 1px solid #132c57;">
+            <div class="flex items-center gap-3 px-3 py-4" style="border-bottom: 1px solid #0d2040; min-height: 64px;">
+                <div class="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-xs tracking-tight" style="background: linear-gradient(135deg, #059669, #34d399); color: #040d1a;">FR</div>
+                <div class="sidebar-text overflow-hidden whitespace-nowrap">
+                    <div class="font-semibold text-sm text-white leading-none">FinancialRAG</div>
+                    <div class="text-xs mt-0.5" style="color: #34d399;">AI News Agent</div>
+                </div>
+            </div>
+
+            <nav class="flex-1 py-3 px-2 flex flex-col gap-0.5">
+                <a href="{% url 'home' %}" class="nav-item group flex items-center gap-3 px-2.5 py-2.5 rounded-xl w-full text-left transition-all duration-150 {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <span class="text-base flex-shrink-0 w-5 text-center">&#x2302;</span>
+                    <span class="sidebar-text text-sm font-medium truncate">Home</span>
+                </a>
+                <a href="{% url 'newsfeed' %}" class="nav-item group flex items-center gap-3 px-2.5 py-2.5 rounded-xl w-full text-left transition-all duration-150 {% if request.resolver_match.url_name == 'newsfeed' %}active{% endif %}">
+                    <span class="text-base flex-shrink-0 w-5 text-center">&#x26A1;</span>
+                    <span class="sidebar-text text-sm font-medium truncate">News Feed</span>
+                </a>
+                <a href="{% url 'portfolio' %}" class="nav-item group flex items-center gap-3 px-2.5 py-2.5 rounded-xl w-full text-left transition-all duration-150 {% if request.resolver_match.url_name == 'portfolio' %}active{% endif %}">
+                    <span class="text-base flex-shrink-0 w-5 text-center">&#x25C8;</span>
+                    <span class="sidebar-text text-sm font-medium truncate">Portfolio</span>
+                </a>
+                <a href="{% url 'analytics' %}" class="nav-item group flex items-center gap-3 px-2.5 py-2.5 rounded-xl w-full text-left transition-all duration-150 {% if request.resolver_match.url_name == 'analytics' %}active{% endif %}">
+                    <span class="text-base flex-shrink-0 w-5 text-center">&#x25A6;</span>
+                    <span class="sidebar-text text-sm font-medium truncate">Analytics</span>
+                </a>
+                <a href="{% url 'settings' %}" class="nav-item group flex items-center gap-3 px-2.5 py-2.5 rounded-xl w-full text-left transition-all duration-150 {% if request.resolver_match.url_name == 'settings' %}active{% endif %}">
+                    <span class="text-base flex-shrink-0 w-5 text-center">&#x2699;</span>
+                    <span class="sidebar-text text-sm font-medium truncate">Settings</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-status mx-3 mb-3 px-3 py-2.5 rounded-xl" style="background: #071428; border: 1px solid #0d2040;">
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background: #34d399;"></span>
+                    <span class="text-xs font-medium" style="color: #34d399;">Pipeline Active</span>
+                </div>
+                <div class="text-xs" style="color: #334155;">42 sources · updated 2m ago</div>
+            </div>
+
+            <button id="toggleSidebar" class="mx-2 mb-3 py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition-all duration-150" style="border: 1px solid #0d2040; color: #334155;">
+                <span id="toggleIcon" style="display: inline-block; transform: rotate(0deg); transition: transform .3s;">&#x2039;</span>
+                <span class="sidebar-text">Collapse</span>
+            </button>
+        </aside>
+
+        <div class="flex-1 overflow-hidden flex flex-col">
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
