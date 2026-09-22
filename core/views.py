@@ -44,18 +44,90 @@ def home(request):
 
 
 def portfolio(request):
-    """Portafolio con predicciones del modelo."""
-    predictions = get_latest_predictions(limit=10)
+    """Portafolio con predicciones reales del modelo."""
+    from core.models import StockPrediction, SentimentFeature
+    from django.db.models import Avg, Count
+    from datetime import datetime
     
-    stocks = []
-    for pred in predictions:
-        stocks.append({
-            'ticker': pred['ticker'],
-            'predicted_return': f"{pred['predicted_return']:.2%}",
-            'date': pred['date'],
-        })
+    # Obtener métricas reales del portafolio
+    latest_date = StockPrediction.objects.order_by('-date').values_list('date', flat=True).first()
     
-    return render(request, 'core/portfolio.html', {'stocks': stocks})
+    if latest_date:
+        # Predicciones del último día (primero filtrar, luego slice)
+        predictions_qs = StockPrediction.objects.filter(date=latest_date).order_by('ticker')
+        predictions_with_actual = predictions_qs.filter(actual_return__isnull=False)
+        predictions = predictions_qs[:50]
+        
+        # Calcular métricas
+        total_positions = predictions_qs.count()
+        total_predictions = StockPrediction.objects.count()
+        mean_predicted = predictions.aggregate(avg=Avg('predicted_return'))['avg'] or 0
+        
+        # Calcular correlación con actual_return
+        if predictions_with_actual.count() > 1:
+            import pandas as pd
+            pred_values = list(predictions_with_actual.values_list('predicted_return', flat=True))
+            actual_values = list(predictions_with_actual.values_list('actual_return', flat=True))
+            correlation = pd.Series(pred_values).corr(pd.Series(actual_values))
+        else:
+            correlation = 0
+        
+        # Preparar datos para el template
+        stocks = []
+        for pred in predictions:
+            # Buscar sentimiento para este ticker
+            sent = SentimentFeature.objects.filter(
+                ticker=pred.ticker,
+                date__lte=pred.date
+            ).order_by('-date').first()
+            
+            # Determinar sentimiento
+            if sent and sent.sentiment_mean > 0.2:
+                sentiment_label = 'Bullish'
+                sentiment_bg = '#071f0e'
+                sentiment_color = '#6ee7b7'
+                sentiment_border = '#064e3b'
+            elif sent and sent.sentiment_mean < -0.2:
+                sentiment_label = 'Bearish'
+                sentiment_bg = '#3f1111'
+                sentiment_color = '#fca5a5'
+                sentiment_border = '#7f1d1d'
+            else:
+                sentiment_label = 'Neutral'
+                sentiment_bg = '#1c1917'
+                sentiment_color = '#a8a29e'
+                sentiment_border = '#44403c'
+            
+            stocks.append({
+                'ticker': pred.ticker,
+                'date': pred.date,
+                'predicted_return': pred.predicted_return,
+                'actual_return': pred.actual_return,
+                'sentiment': sentiment_label,
+                'sentiment_bg': sentiment_bg,
+                'sentiment_color': sentiment_color,
+                'sentiment_border': sentiment_border,
+            })
+        
+        context = {
+            'stocks': stocks,
+            'total_positions': total_positions,
+            'total_predictions': total_predictions,
+            'mean_predicted': mean_predicted,
+            'correlation': correlation,
+            'last_updated': latest_date.strftime('%b %d, %Y · %H:%M EST'),
+        }
+    else:
+        context = {
+            'stocks': [],
+            'total_positions': 0,
+            'total_predictions': 0,
+            'mean_predicted': 0,
+            'correlation': 0,
+            'last_updated': 'N/A',
+        }
+    
+    return render(request, 'core/portfolio.html', context)
 
 
 def newsfeed(request):

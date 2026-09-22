@@ -7,29 +7,31 @@
 <div class="flex-1 overflow-y-auto px-6 py-5">
     <div class="mb-5">
         <h2 class="text-base font-semibold text-white">Portfolio</h2>
-        <p class="text-xs mt-0.5" style="color: #334155;">Last updated Jan 30, 2025 · 09:42 EST</p>
+        <p class="text-xs mt-0.5" style="color: #334155;">Last updated {{ last_updated|default:"N/A" }}</p>
     </div>
 
     <div class="grid grid-cols-4 gap-3 mb-5">
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Total Value</div>
-            <div class="text-xl font-bold" style="color: #34d399;">$97,284</div>
-            <div class="text-xs mt-1" style="color: #475569;">across 6 positions</div>
+            <div class="text-xs mb-1" style="color: #334155;">Total Positions</div>
+            <div class="text-xl font-bold" style="color: #34d399;">{{ total_positions|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">unique tickers</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Daily Change</div>
-            <div class="text-xl font-bold" style="color: #34d399;">+$1,842</div>
-            <div class="text-xs mt-1" style="color: #475569;">+1.93% today</div>
+            <div class="text-xs mb-1" style="color: #334155;">Total Predictions</div>
+            <div class="text-xl font-bold" style="color: #34d399;">{{ total_predictions|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">model outputs</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Unrealized P&L</div>
-            <div class="text-xl font-bold" style="color: #34d399;">+$13,084</div>
-            <div class="text-xs mt-1" style="color: #475569;">since inception</div>
+            <div class="text-xs mb-1" style="color: #334155;">Mean Predicted Return</div>
+            <div class="text-xl font-bold" style="color: {% if mean_predicted > 0 %}#34d399{% else %}#f87171{% endif %};">
+                {{ mean_predicted|floatformat:4 }}
+            </div>
+            <div class="text-xs mt-1" style="color: #475569;">across all positions</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">AI Avg Sentiment</div>
-            <div class="text-xl font-bold text-white">77 / 100</div>
-            <div class="text-xs mt-1" style="color: #475569;">portfolio bullishness</div>
+            <div class="text-xs mb-1" style="color: #334155;">Model Correlation</div>
+            <div class="text-xl font-bold text-white">{{ correlation|floatformat:4 }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">prediction vs actual</div>
         </div>
     </div>
 
@@ -46,35 +48,31 @@
     <div class="rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
         <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
             <span class="text-sm font-medium" style="color: #94a3b8;">Asset Breakdown</span>
-            <span class="text-xs" style="color: #334155;">6 positions</span>
+            <span class="text-xs" style="color: #334155;">{{ stocks|length }} positions</span>
         </div>
 
-        <div class="grid text-xs px-4 py-2" style="grid-template-columns: 1fr 1fr 80px 90px 80px 100px 120px; color: #334155; border-bottom: 1px solid #0d2040;">
+        <div class="grid text-xs px-4 py-2" style="grid-template-columns: 1fr 1fr 100px 120px 120px; color: #334155; border-bottom: 1px solid #0d2040;">
             <span>Ticker</span>
-            <span>Name</span>
-            <span class="text-right">Shares</span>
-            <span class="text-right">Price</span>
-            <span class="text-right">Change</span>
+            <span>Date</span>
+            <span class="text-right">Predicted Return</span>
+            <span class="text-right">Actual Return</span>
             <span class="text-center">AI Sentiment</span>
-            <span></span>
         </div>
 
         {% for stock in stocks %}
-        <div class="grid items-center px-4 py-3 text-sm transition-all duration-150" style="grid-template-columns: 1fr 1fr 80px 90px 80px 100px 120px; border-bottom: 1px solid #071428;">
+        <div class="grid items-center px-4 py-3 text-sm transition-all duration-150" style="grid-template-columns: 1fr 1fr 100px 120px 120px; border-bottom: 1px solid #071428;">
             <span class="font-semibold font-mono" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">{{ stock.ticker }}</span>
-            <span class="text-xs" style="color: #64748b;">{{ stock.name }}</span>
-            <span class="text-right text-xs" style="color: #94a3b8;">{{ stock.shares }}</span>
-            <span class="text-right font-medium text-xs" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">${{ stock.price }}</span>
-            <span class="text-right text-xs font-medium" style="color: {% if stock.change >= 0 %}#34d399{% else %}#f87171{% endif %};">
-                {% if stock.change >= 0 %}+{% endif %}{{ stock.change }}%
+            <span class="text-xs" style="color: #64748b;">{{ stock.date }}</span>
+            <span class="text-right font-medium text-xs" style="color: {% if stock.predicted_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">
+                {{ stock.predicted_return|floatformat:4 }}
+            </span>
+            <span class="text-right text-xs" style="color: {% if stock.actual_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">
+                {{ stock.actual_return|floatformat:4 }}
             </span>
             <div class="flex justify-center">
-                <span class="text-[10px] px-2 py-1 rounded-full font-medium" style="background: {{ stock.sentiment_bg }}; color: {{ stock.sentiment_color }}; border: 1px solid {{ stock.sentiment_border }};">
-                    {{ stock.sentiment }}
+                <span class="text-[10px] px-2 py-1 rounded-full font-medium" style="background: {{ stock.sentiment_bg|default:'#1c1917' }}; color: {{ stock.sentiment_color|default:'#a8a29e' }}; border: 1px solid {{ stock.sentiment_border|default:'#44403c' }};">
+                    {{ stock.sentiment|default:'Neutral' }}
                 </span>
-            </div>
-            <div class="flex justify-end">
-                <button class="alert-btn text-[10px] px-2.5 py-1 rounded-full transition-all duration-150" data-ticker="{{ stock.ticker }}" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">+ Create Alert</button>
             </div>
         </div>
         {% endfor %}
