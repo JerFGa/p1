@@ -1,32 +1,12 @@
-# Django
 asgiref==3.12.1
 Django==6.1.1
 sqlparse==0.6.0
-
-# Data & Visualization
 numpy
 pandas
+scikit-learn
 matplotlib
 seaborn
 plotly
-
-# Finance
 yfinance
 ta
-
-# ML / Deep Learning
 torch
-scikit-learn
-pyqlib==0.9.7
-lightgbm==4.7.0
-transformers==5.5.4
-sentence-transformers==5.4.1
-
-# Sentiment Analysis
-datasets==5.0.1
-
-# SHAP (for feature importance analysis)
-shap==0.46.0
-
-# Data handling
-pyarrow==21.0.0
