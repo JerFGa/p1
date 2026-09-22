@@ -4,6 +4,31 @@
 {% block title %}Home - FinancialRAG{% endblock %}
 
 {% block content %}
+<!-- Market Overview Section -->
+{% if stocks %}
+<div class="px-6 py-4" style="border-bottom: 1px solid #0d2040; background: #040d1a;">
+    <h2 class="text-xs font-semibold mb-3" style="color: #64748b;">MARKET OVERVIEW</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {% for stock in stocks %}
+        <div class="rounded-xl p-3" style="background: #071428; border: 1px solid #132c57;">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold" style="color: #e2e8f0;">{{ stock.ticker }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" style="background: {{ stock.sentiment_bg }}; color: {{ stock.sentiment_color }};">
+                    {{ stock.sentiment }}
+                </span>
+            </div>
+            <div class="text-lg font-semibold" style="color: {% if stock.predicted_return > 0 %}#34d399{% else %}#f87171{% endif %};">
+                {{ stock.predicted_return|floatformat:2 }}%
+            </div>
+            <div class="text-xs mt-1" style="color: #334155;">
+                {{ stock.date }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <header class="flex items-center justify-between px-6 py-3 flex-shrink-0" style="border-bottom: 1px solid #0d2040; background: #040d1a; min-height: 64px;">
     <div>
         <h1 class="text-sm font-semibold text-white">Financial News Assistant</h1>

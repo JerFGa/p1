@@ -4,6 +4,37 @@
 {% block title %}Analytics - FinancialRAG{% endblock %}
 
 {% block content %}
+<!-- Model Performance Section -->
+{% if metrics %}
+<div class="px-6 py-4 mb-5" style="border-bottom: 1px solid #0d2040; background: #071428;">
+    <h2 class="text-xs font-semibold mb-3" style="color: #64748b;">MODEL PERFORMANCE</h2>
+    <div class="grid grid-cols-4 gap-3">
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Total Predictions</div>
+            <div class="text-xl font-bold text-white">{{ metrics.count|default:"0" }}</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Correlation</div>
+            <div class="text-xl font-bold" style="color: {% if metrics.correlation > 0 %}#34d399{% else %}#f87171{% endif %};">
+                {{ metrics.correlation|floatformat:4 }}
+            </div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Mean Predicted</div>
+            <div class="text-xl font-bold" style="color: {% if metrics.mean_predicted > 0 %}#34d399{% else %}#f87171{% endif %};">
+                {{ metrics.mean_predicted|floatformat:4 }}
+            </div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #334155;">Mean Actual</div>
+            <div class="text-xl font-bold" style="color: {% if metrics.mean_actual > 0 %}#34d399{% else %}#f87171{% endif %};">
+                {{ metrics.mean_actual|floatformat:6 }}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="flex-1 overflow-y-auto px-6 py-5">
     <div class="flex items-center justify-between mb-5">
         <div>
