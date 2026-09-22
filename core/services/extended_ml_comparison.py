@@ -17,7 +17,7 @@ import matplotlib.pyplot as plt
 
 # Importar funciones del script base
 sys.path.append(str(Path(__file__).parent))
-from ml_service import (
+from base_ml import (
     create_lightgbm,
     train_model,
     build_cross_sectional_strategy,
