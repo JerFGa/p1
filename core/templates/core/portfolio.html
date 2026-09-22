@@ -5,42 +5,56 @@
 
 {% block content %}
 <div class="flex-1 overflow-y-auto px-6 py-5">
-    <div class="mb-5">
-        <h2 class="text-base font-semibold text-white">Portfolio</h2>
-        <p class="text-xs mt-0.5" style="color: #334155;">Last updated {{ last_updated|default:"N/A" }}</p>
+    <div class="mb-5 flex items-center justify-between flex-wrap gap-3">
+        <div>
+            <h2 class="text-base font-semibold text-white">Portfolio Analysis</h2>
+            <p class="text-xs mt-0.5" style="color: #64748b;">Quantitative stock selection · S&P 500 signals</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <span class="text-xs px-2.5 py-1 rounded-full font-medium" style="background: #071f0e; color: #34d399; border: 1px solid #064e3b;">
+                ● {{ model_name|default:"Variant C: Alpha158 + FinBERT" }}
+            </span>
+            <span class="text-xs px-2.5 py-1 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">
+                {{ last_updated|default:"N/A" }}
+            </span>
+        </div>
     </div>
 
     <div class="grid grid-cols-4 gap-3 mb-5">
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Total Positions</div>
+            <div class="text-xs mb-1" style="color: #334155;">Active Universe</div>
             <div class="text-xl font-bold" style="color: #34d399;">{{ total_positions|default:"0" }}</div>
-            <div class="text-xs mt-1" style="color: #475569;">unique tickers</div>
+            <div class="text-xs mt-1" style="color: #475569;">S&P 500 equities</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Total Predictions</div>
+            <div class="text-xs mb-1" style="color: #334155;">Augmented Predictions</div>
             <div class="text-xl font-bold" style="color: #34d399;">{{ total_predictions|default:"0" }}</div>
-            <div class="text-xs mt-1" style="color: #475569;">model outputs</div>
+            <div class="text-xs mt-1" style="color: #475569;">LightGBM + FinBERT</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
             <div class="text-xs mb-1" style="color: #334155;">Mean Predicted Return</div>
             <div class="text-xl font-bold" style="color: {% if mean_predicted > 0 %}#34d399{% else %}#f87171{% endif %};">
-                {{ mean_predicted|floatformat:4 }}
+                {{ mean_predicted|floatformat:3 }}%
             </div>
-            <div class="text-xs mt-1" style="color: #475569;">across all positions</div>
+            <div class="text-xs mt-1" style="color: #475569;">cross-sectional mean</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Model Correlation</div>
+            <div class="text-xs mb-1" style="color: #334155;">Model Correlation (IC)</div>
             <div class="text-xl font-bold text-white">{{ correlation|floatformat:4 }}</div>
-            <div class="text-xs mt-1" style="color: #475569;">prediction vs actual</div>
+            <div class="text-xs mt-1" style="color: #475569;">prediction vs forward actual</div>
         </div>
     </div>
 
+    <!-- Gráfica de Rendimiento Acumulado -->
     <div class="rounded-xl mb-5 overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
         <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
-            <span class="text-sm font-medium" style="color: #94a3b8;">Performance Overview</span>
+            <div>
+                <span class="text-sm font-medium" style="color: #94a3b8;">Cumulative Model Performance</span>
+                <span class="text-xs ml-2" style="color: #64748b;">(Simulated \$100k Benchmark Strategy)</span>
+            </div>
             {% if ytd_return %}
-            <span class="text-xs px-2 py-1 rounded-full" style="background: {% if ytd_return > 0 %}#052e16{% else %}#3f1111{% endif %}; color: {% if ytd_return > 0 %}#34d399{% else %}#fca5a5{% endif %}; border: 1px solid {% if ytd_return > 0 %}#059669{% else %}#7f1d1d{% endif %};">
-                {% if ytd_return > 0 %}+{% endif %}{{ ytd_return|floatformat:1 }}% YTD
+            <span class="text-xs px-2.5 py-1 rounded-full font-medium" style="background: {% if ytd_return > 0 %}#052e16{% else %}#3f1111{% endif %}; color: {% if ytd_return > 0 %}#34d399{% else %}#fca5a5{% endif %}; border: 1px solid {% if ytd_return > 0 %}#059669{% else %}#7f1d1d{% endif %};">
+                {% if ytd_return > 0 %}+{% endif %}{{ ytd_return|floatformat:1 }}% Annualized
             </span>
             {% endif %}
         </div>
@@ -49,45 +63,85 @@
         </div>
     </div>
 
+    <!-- Tabla de Posiciones con Buscador -->
     <div class="rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
-        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
-            <span class="text-sm font-medium" style="color: #94a3b8;">Asset Breakdown</span>
-            <span class="text-xs" style="color: #334155;">{{ stocks|length }} positions</span>
+        <div class="flex items-center justify-between px-4 py-3 flex-wrap gap-3" style="border-bottom: 1px solid #0d2040;">
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-medium" style="color: #94a3b8;">Constituent Rankings</span>
+                <span id="posCountBadge" class="text-xs px-2 py-0.5 rounded-full" style="background: #040d1a; color: #64748b; border: 1px solid #0d2040;">{{ stocks|length }} positions</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <input type="text" id="tickerSearchInput" placeholder="Filter ticker (e.g. NVDA, AAPL)..." class="text-xs px-3 py-1.5 rounded-xl outline-none" style="background: #040d1a; border: 1px solid #132c57; color: #e2e8f0; width: 230px; caret-color: #34d399;">
+            </div>
         </div>
 
-        <div class="grid text-xs px-4 py-2" style="grid-template-columns: 1fr 1fr 100px 120px 120px; color: #334155; border-bottom: 1px solid #0d2040;">
+        <div class="grid text-xs px-4 py-2" style="grid-template-columns: 1fr 1fr 110px 110px 120px 80px; color: #64748b; border-bottom: 1px solid #0d2040;">
             <span>Ticker</span>
             <span>Date</span>
             <span class="text-right">Predicted Return</span>
             <span class="text-right">Actual Return</span>
-            <span class="text-center">AI Sentiment</span>
+            <span class="text-center">FinBERT Sentiment</span>
+            <span class="text-center">Action</span>
         </div>
 
-        {% for stock in stocks %}
-        <div class="grid items-center px-4 py-3 text-sm transition-all duration-150" style="grid-template-columns: 1fr 1fr 100px 120px 120px; border-bottom: 1px solid #071428;">
-            <span class="font-semibold font-mono" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">{{ stock.ticker }}</span>
-            <span class="text-xs" style="color: #64748b;">{{ stock.date }}</span>
-            <span class="text-right font-medium text-xs" style="color: {% if stock.predicted_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">
-                {{ stock.predicted_return|floatformat:4 }}
-            </span>
-            <span class="text-right text-xs" style="color: {% if stock.actual_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">
-                {{ stock.actual_return|floatformat:4 }}
-            </span>
-            <div class="flex justify-center">
-                <span class="text-[10px] px-2 py-1 rounded-full font-medium" style="background: {{ stock.sentiment_bg|default:'#1c1917' }}; color: {{ stock.sentiment_color|default:'#a8a29e' }}; border: 1px solid {{ stock.sentiment_border|default:'#44403c' }};">
-                    {{ stock.sentiment|default:'Neutral' }}
+        <div id="stockListContainer">
+            {% for stock in stocks %}
+            <div class="stock-row grid items-center px-4 py-3 text-sm transition-all duration-150 cursor-pointer hover:bg-[#0d2040]" data-ticker="{{ stock.ticker }}" style="grid-template-columns: 1fr 1fr 110px 110px 120px 80px; border-bottom: 1px solid #071428;">
+                <div class="flex items-center gap-2">
+                    <span class="font-bold font-mono text-sm" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">{{ stock.ticker }}</span>
+                </div>
+                <span class="text-xs" style="color: #64748b;">{{ stock.date }}</span>
+                <span class="text-right font-medium text-xs font-mono" style="color: {% if stock.predicted_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">
+                    {{ stock.predicted_return|floatformat:4 }}
                 </span>
+                <span class="text-right text-xs font-mono" style="color: {% if stock.actual_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">
+                    {{ stock.actual_return|floatformat:4 }}
+                </span>
+                <div class="flex justify-center">
+                    <span class="text-[10px] px-2 py-0.5 rounded-full font-medium" style="background: {{ stock.sentiment_bg|default:'#1c1917' }}; color: {{ stock.sentiment_color|default:'#a8a29e' }}; border: 1px solid {{ stock.sentiment_border|default:'#44403c' }};">
+                        {{ stock.sentiment|default:'Neutral' }}
+                    </span>
+                </div>
+                <div class="flex justify-center">
+                    <button class="text-[10px] px-2 py-1 rounded-lg transition-all" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Chart ›</button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Modal Interactivo de Detalle de Acción -->
+<div id="tickerDetailModal" class="fixed inset-0 hidden items-center justify-center z-50 p-6" style="background: rgba(4,13,26,0.85); backdrop-filter: blur(4px);">
+    <div class="w-full max-w-2xl rounded-2xl overflow-hidden" style="background: #071428; border: 1px solid #1a3a6e;">
+        <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #0d2040;">
+            <div class="flex items-center gap-3">
+                <span id="modalTickerName" class="text-lg font-bold text-white font-mono"></span>
+                <span class="text-xs px-2.5 py-0.5 rounded-full" style="background: #052e16; color: #34d399; border: 1px solid #059669;">S&P 500 Constituent</span>
+            </div>
+            <button id="closeTickerModal" class="w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all" style="color: #64748b; border: 1px solid #0d2040;">×</button>
+        </div>
+        <div class="p-5">
+            <h4 class="text-xs font-semibold text-slate-400 mb-2">30-DAY HISTORICAL PERFORMANCE & PREDICTIONS</h4>
+            <div style="height: 180px;" class="mb-4">
+                <canvas id="tickerChart"></canvas>
+            </div>
+            
+            <h4 class="text-xs font-semibold text-slate-400 mb-2">RECENT CORPUS INTELLIGENCE</h4>
+            <div id="modalTickerArticles" class="flex flex-col gap-2"></div>
+
+            <div class="mt-4 flex justify-end">
+                <button id="dismissTickerModal" class="text-xs px-4 py-2 rounded-xl transition-all" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Close</button>
             </div>
         </div>
-        {% endfor %}
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-// Datos reales del rendimiento del portafolio
-const perfData = {{ perf_chart_data|safe }};
+// Datos reales de rendimiento acumulado
+const perfData = {{ perf_chart_json|default:"[]"|safe }};
 
 const ctx = document.getElementById('perfChart').getContext('2d');
 const gradient = ctx.createLinearGradient(0, 0, 0, 140);
@@ -104,7 +158,7 @@ new Chart(ctx, {
             borderWidth: 2,
             backgroundColor: gradient,
             fill: true,
-            tension: 0.4,
+            tension: 0.35,
             pointRadius: 0,
             pointHoverRadius: 4,
             pointHoverBackgroundColor: '#34d399',
@@ -130,7 +184,7 @@ new Chart(ctx, {
         },
         scales: {
             x: {
-                ticks: { font: { size: 9, family: 'Inter' }, color: '#334155', maxTicksLimit: 6 },
+                ticks: { font: { size: 9, family: 'Inter' }, color: '#334155', maxTicksLimit: 7 },
                 grid: { display: false },
                 border: { display: false }
             },
@@ -143,13 +197,102 @@ new Chart(ctx, {
     }
 });
 
-document.querySelectorAll('.alert-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        this.textContent = 'Alert set ✓';
-        this.style.background = '#052e16';
-        this.style.color = '#34d399';
-        this.style.border = '1px solid #059669';
+// Buscador de Tickers en Tiempo Real
+const searchInput = document.getElementById('tickerSearchInput');
+const rows = document.querySelectorAll('.stock-row');
+const posBadge = document.getElementById('posCountBadge');
+
+searchInput.addEventListener('input', function() {
+    const q = this.value.toUpperCase().trim();
+    let visible = 0;
+    rows.forEach(r => {
+        const ticker = r.dataset.ticker;
+        if (!q || ticker.includes(q)) {
+            r.style.display = 'grid';
+            visible++;
+        } else {
+            r.style.display = 'none';
+        }
+    });
+    posBadge.textContent = visible + ' positions';
+});
+
+// Modal de detalle de Ticker con Chart.js
+const modal = document.getElementById('tickerDetailModal');
+let tickerChartInstance = null;
+
+rows.forEach(r => {
+    r.addEventListener('click', function() {
+        const ticker = this.dataset.ticker;
+        document.getElementById('modalTickerName').textContent = ticker;
+        modal.style.display = 'flex';
+
+        fetch(`/api/ticker/${ticker}/history/`)
+            .then(res => res.json())
+            .then(data => {
+                const chartCanvas = document.getElementById('tickerChart');
+                if (tickerChartInstance) {
+                    tickerChartInstance.destroy();
+                }
+
+                tickerChartInstance = new Chart(chartCanvas, {
+                    type: 'line',
+                    data: {
+                        labels: data.labels,
+                        datasets: [
+                            {
+                                label: 'Predicted Return %',
+                                data: data.predicted_returns,
+                                borderColor: '#34d399',
+                                borderWidth: 2,
+                                tension: 0.3,
+                                pointRadius: 2,
+                            },
+                            {
+                                label: 'Actual Return %',
+                                data: data.actual_returns,
+                                borderColor: '#60a5fa',
+                                borderWidth: 1.5,
+                                borderDash: [4, 4],
+                                tension: 0.3,
+                                pointRadius: 0,
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                labels: { color: '#94a3b8', font: { size: 10 } }
+                            }
+                        },
+                        scales: {
+                            x: { ticks: { color: '#475569', font: { size: 9 } }, grid: { display: false } },
+                            y: { ticks: { color: '#475569', font: { size: 9 }, callback: v => v + '%' }, grid: { color: '#0d2040' } }
+                        }
+                    }
+                });
+
+                const articlesEl = document.getElementById('modalTickerArticles');
+                if (data.articles && data.articles.length > 0) {
+                    articlesEl.innerHTML = data.articles.map(a => `
+                        <div class="p-2.5 rounded-xl text-xs" style="background: #040d1a; border: 1px solid #0d2040;">
+                            <div class="font-medium text-slate-200">${a.headline}</div>
+                            <div class="text-[10px] text-slate-500 mt-1">${a.source} · ${a.date}</div>
+                        </div>
+                    `).join('');
+                } else {
+                    articlesEl.innerHTML = `<div class="text-xs text-slate-500">No recent articles found for this ticker.</div>`;
+                }
+            })
+            .catch(err => console.error("Error loading ticker history:", err));
     });
 });
+
+document.getElementById('closeTickerModal').addEventListener('click', () => modal.style.display = 'none');
+document.getElementById('dismissTickerModal').addEventListener('click', () => modal.style.display = 'none');
+modal.addEventListener('click', e => { if (e.target === modal) modal.style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.style.display = 'none'; });
 </script>
 {% endblock %}

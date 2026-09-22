@@ -80,7 +80,7 @@
             </div>
             <div id="modalSnippet" class="rounded-xl p-4 text-sm leading-relaxed" style="background: #040d1a; border: 1px solid #0d2040; color: #94a3b8;"></div>
             <div class="mt-4 flex gap-2">
-                <button class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article </button>
+                <button id="openFullArticleBtn" class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article</button>
                 <button id="dismissModal" class="text-xs px-4 py-2 rounded-xl transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Dismiss</button>
             </div>
         </div>
@@ -96,61 +96,32 @@ let loading = false;
 function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
 
 async function buildReply(text) {
-    const t = text.toLowerCase();
-    
-    // Detectar ticker
-    const tickerMatch = t.match(/\b(aapl|msft|amzn|tsla|nvda|googl|meta|nflx)\b/i);
-    const ticker = tickerMatch ? tickerMatch[1].toUpperCase() : null;
-    
-    if (ticker) {
-        // Buscar predicción y sentimiento real
-        try {
-            const [predRes, sentRes] = await Promise.all([
-                fetch(`/api/predictions/${ticker}/`),
-                fetch(`/api/sentiment/${ticker}/`)
-            ]);
-            
-            const predData = await predRes.json();
-            const sentData = await sentRes.json();
-            
-            const latestPred = predData.predictions?.[0];
-            const latestSent = sentData.sentiment?.[0];
-            
-            let sentimentText = 'neutral';
-            let sentimentColor = '#a8a29e';
-            
-            if (latestSent && latestSent.sentiment_mean > 0.2) {
-                sentimentText = 'bullish';
-                sentimentColor = '#34d399';
-            } else if (latestSent && latestSent.sentiment_mean < -0.2) {
-                sentimentText = 'bearish';
-                sentimentColor = '#f87171';
-            }
-            
-            const predReturn = latestPred ? (latestPred.predicted_return * 100).toFixed(2) : 'N/A';
-            const newsCount = latestSent ? latestSent.news_volume : 0;
-            
-            return { 
-                text: `<strong>${ticker}</strong> Analysis:<br><br>
-                       • Predicted Return: <span style="color: ${parseFloat(predReturn) >= 0 ? '#34d399' : '#f87171'}">${predReturn}%</span><br>
-                       • News Sentiment: <span style="color: ${sentimentColor}">${sentimentText}</span><br>
-                       • Recent News: ${newsCount} articles<br><br>
-                       Based on our Alpha158 + LightGBM model trained on S&P 500 data.` 
+    try {
+        const response = await fetch('/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: text })
+        });
+        
+        const data = await response.json();
+        if (data.status === 'ok') {
+            return {
+                text: data.text,
+                citations: data.citations && data.citations.length > 0 ? data.citations : null
             };
-        } catch (e) {
-            return { text: `I'm analyzing ${ticker}... Data temporarily unavailable. Please try again.` };
+        } else {
+            return {
+                text: `Error procesando la consulta: ${data.error || 'Intenta de nuevo.'}`
+            };
         }
+    } catch (e) {
+        console.error("Error al consultar el servicio RAG:", e);
+        return {
+            text: `No se pudo conectar con el motor RAG. Por favor intenta de nuevo en unos segundos.`
+        };
     }
-    
-    if (t.includes('fed') || t.includes('fomc') || t.includes('interest rate')) {
-        return { text: "The Federal Reserve's latest policy decisions impact market sentiment. Our model incorporates macroeconomic indicators through the Alpha158 feature set. Check the Analytics page for detailed model performance metrics." };
-    }
-    
-    if (t.includes('market') || t.includes('sp500') || t.includes('s&p')) {
-        return { text: "Our ML model analyzes S&P 500 stocks using 158 technical features (Alpha158) combined with news sentiment. The model is trained on data from 2008-2026 with LightGBM. Visit Portfolio to see current predictions." };
-    }
-    
-    return { text: `I searched for "${text}". Our FinancialRAG system combines technical analysis (Alpha158 features) with news sentiment analysis using FinBERT. Try asking about specific tickers like AAPL, TSLA, or AMZN for detailed predictions.` };
 }
 
 function renderMessages() {
@@ -242,6 +213,16 @@ function showCitationModal(citation) {
     confEl.style.background = citation.confidence === 'High' ? '#052e16' : '#1c1917';
     confEl.style.color = citation.confidence === 'High' ? '#34d399' : '#a8a29e';
     confEl.style.border = '1px solid ' + (citation.confidence === 'High' ? '#059669' : '#44403c');
+    
+    const fullBtn = document.getElementById('openFullArticleBtn');
+    if (fullBtn) {
+        fullBtn.textContent = 'Open full article';
+        fullBtn.onclick = () => {
+            document.getElementById('modalSnippet').innerHTML = `<div class="max-h-64 overflow-y-auto leading-relaxed">${citation.text || citation.snippet}</div>`;
+            fullBtn.textContent = 'Full article displayed ✓';
+        };
+    }
+
     document.getElementById('referenceModal').style.display = 'flex';
 }
 

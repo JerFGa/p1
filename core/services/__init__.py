@@ -20,6 +20,8 @@ from .sentiment_service import (
     get_latest_sentiment,
 )
 
+from .rag_service import execute_rag_query
+
 __all__ = [
     'load_predictions_from_csv',
     'get_predictions_for_ticker',
@@ -29,4 +31,5 @@ __all__ = [
     'compute_sentiment_features',
     'get_sentiment_for_ticker',
     'get_latest_sentiment',
+    'execute_rag_query',
 ]

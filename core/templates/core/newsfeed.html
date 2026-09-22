@@ -7,15 +7,20 @@
 <div class="flex-1 overflow-y-auto px-6 py-5">
     <div class="mb-5">
         <h2 class="text-base font-semibold text-white">News Feed</h2>
-        <p class="text-xs mt-0.5" style="color: #334155;">{{ feed_subtitle|default:"Real-time articles from verified financial sources" }}</p>
+        <p class="text-xs mt-0.5" style="color: #334155;">{{ feed_subtitle|default:"Real-time articles with FinBERT sentiment & contextual summaries" }}</p>
     </div>
 
-    <div class="flex gap-2 mb-5 flex-wrap">
-        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150 active" data-filter="All" style="background: linear-gradient(135deg, #059669, #10b981); color: #040d1a; border: 1px solid #059669;">All Markets</button>
-        {% for category in categories %}
-        <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150" data-filter="{{ category }}" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">{{ category }}</button>
-        {% endfor %}
-        <span id="articleCount" class="ml-auto text-xs self-center" style="color: #334155;">{{ article_count }} articles</span>
+    <div class="flex gap-3 mb-5 flex-wrap items-center justify-between">
+        <div class="flex gap-2 flex-wrap items-center">
+            <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150 active" data-filter="All" style="background: linear-gradient(135deg, #059669, #10b981); color: #040d1a; border: 1px solid #059669;">All Markets</button>
+            {% for category in categories %}
+            <button class="filter-btn text-xs px-3 py-1.5 rounded-full font-medium transition-all duration-150" data-filter="{{ category }}" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">{{ category }}</button>
+            {% endfor %}
+        </div>
+        <div class="flex items-center gap-3">
+            <input type="text" id="newsSearchInput" placeholder="Search news (e.g. AI, Fed, Nvidia)..." class="text-xs px-3 py-1.5 rounded-xl outline-none" style="background: #071428; border: 1px solid #132c57; color: #e2e8f0; width: 230px; caret-color: #34d399;">
+            <span id="articleCount" class="text-xs" style="color: #64748b;">{{ article_count }} articles indexed</span>
+        </div>
     </div>
 
     <div id="articles" class="flex flex-col gap-3">
@@ -24,27 +29,55 @@
             <div class="px-4 py-3">
                 <div class="flex items-start gap-3">
                     <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 mb-1.5">
+                        <div class="flex items-center gap-2 mb-1.5 flex-wrap">
                             <span class="text-[10px] px-2 py-0.5 rounded-full font-medium" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">{{ article.ticker }}</span>
-                            <span class="text-[10px]" style="color: #334155;">{{ article.category }}</span>
-                            <span class="text-[10px] ml-auto" style="color: #334155;">{{ article.date }} · {{ article.source }}</span>
+                            <span class="text-[10px] px-2 py-0.5 rounded-full font-medium" style="background: {{ article.sentiment_bg }}; color: {{ article.sentiment_color }}; border: 1px solid {{ article.sentiment_border }};">
+                                {{ article.sentiment_label }} ({{ article.sentiment_score }})
+                            </span>
+                            <span class="text-[10px]" style="color: #64748b;">{{ article.category }}</span>
+                            <span class="text-[10px] ml-auto" style="color: #475569;">{{ article.date }} · {{ article.source }}</span>
                         </div>
                         <h3 class="text-sm font-medium leading-snug" style="color: #e2e8f0;">{{ article.headline }}</h3>
                     </div>
                 </div>
 
                 <div class="summary-panel hidden mt-3 p-3 rounded-lg text-xs leading-relaxed" style="background: #040d1a; border: 1px solid #0d2040; color: #94a3b8;">
-                    <span class="text-[10px] font-semibold mb-1 block" style="color: #34d399;"> AI Summary</span>
-                    {{ article.summary|default:"Summary not available" }}
+                    <span class="text-[10px] font-semibold mb-1 block" style="color: #34d399;">AI Summary & Context</span>
+                    {{ article.summary }}
                 </div>
 
                 <div class="flex items-center gap-2 mt-3">
                     <button class="summary-btn text-[10px] px-2.5 py-1 rounded-full transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">▦ AI Summary</button>
-                    <button class="text-[10px] px-2.5 py-1 rounded-full transition-all duration-150 ml-auto" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Read full </button>
+                    <button class="read-full-btn text-[10px] px-2.5 py-1 rounded-full transition-all duration-150 ml-auto" style="background: #0d2040; color: #34d399; border: 1px solid #132c57;" data-headline="{{ article.headline }}" data-ticker="{{ article.ticker }}" data-source="{{ article.source }}" data-date="{{ article.date }}" data-text="{{ article.text }}" data-sentiment="{{ article.sentiment_label }}">Read full article</button>
                 </div>
             </div>
         </div>
         {% endfor %}
+    </div>
+</div>
+
+<!-- Modal para leer artículo completo -->
+<div id="newsArticleModal" class="fixed inset-0 hidden items-center justify-center z-50 p-6" style="background: rgba(4,13,26,0.85); backdrop-filter: blur(4px);">
+    <div class="w-full max-w-xl rounded-2xl overflow-hidden" style="background: #071428; border: 1px solid #1a3a6e;">
+        <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid #0d2040;">
+            <div class="flex items-center gap-2">
+                <span id="modalArticleTicker" class="text-xs px-2.5 py-1 rounded-full font-bold" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;"></span>
+                <span id="modalArticleSentiment" class="text-xs px-2.5 py-1 rounded-full font-medium"></span>
+            </div>
+            <button id="closeNewsModal" class="w-7 h-7 rounded-lg flex items-center justify-center text-sm transition-all duration-150" style="color: #64748b; border: 1px solid #0d2040;">×</button>
+        </div>
+        <div class="px-5 py-4">
+            <h3 id="modalArticleHeadline" class="text-base font-semibold leading-snug mb-2" style="color: #e2e8f0;"></h3>
+            <div class="flex items-center gap-3 mb-4 text-xs" style="color: #64748b;">
+                <span id="modalArticleSource"></span>
+                <span>·</span>
+                <span id="modalArticleDate"></span>
+            </div>
+            <div id="modalArticleContent" class="rounded-xl p-4 text-sm leading-relaxed max-h-80 overflow-y-auto" style="background: #040d1a; border: 1px solid #0d2040; color: #cbd5e1;"></div>
+            <div class="mt-4 flex justify-end">
+                <button id="dismissNewsModal" class="text-xs px-4 py-2 rounded-xl transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
@@ -66,24 +99,50 @@ document.querySelectorAll('.filter-btn').forEach(btn => {
         this.style.border = '1px solid #059669';
 
         let count = 0;
+        const q = document.getElementById('newsSearchInput') ? document.getElementById('newsSearchInput').value.toLowerCase().trim() : '';
         document.querySelectorAll('.article-card').forEach(card => {
-            if (activeFilter === 'All' || card.dataset.category === activeFilter) {
+            const headline = card.querySelector('h3').textContent.toLowerCase();
+            const ticker = card.innerText.toLowerCase();
+            const matchesCat = activeFilter === 'All' || card.dataset.category === activeFilter;
+            const matchesQuery = !q || headline.includes(q) || ticker.includes(q);
+            if (matchesCat && matchesQuery) {
                 card.style.display = 'block';
                 count++;
             } else {
                 card.style.display = 'none';
             }
         });
-        document.getElementById('articleCount').textContent = count + ' articles';
+        document.getElementById('articleCount').textContent = count + ' articles displayed';
     });
 });
+
+const searchInput = document.getElementById('newsSearchInput');
+if (searchInput) {
+    searchInput.addEventListener('input', function() {
+        const q = this.value.toLowerCase().trim();
+        let count = 0;
+        document.querySelectorAll('.article-card').forEach(card => {
+            const headline = card.querySelector('h3').textContent.toLowerCase();
+            const text = card.innerText.toLowerCase();
+            const matchesCat = activeFilter === 'All' || card.dataset.category === activeFilter;
+            const matchesQuery = !q || headline.includes(q) || text.includes(q);
+            if (matchesCat && matchesQuery) {
+                card.style.display = 'block';
+                count++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+        document.getElementById('articleCount').textContent = count + ' articles displayed';
+    });
+}
 
 document.querySelectorAll('.summary-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const panel = this.closest('.article-card').querySelector('.summary-panel');
         if (panel.classList.contains('hidden')) {
             panel.classList.remove('hidden');
-            this.textContent = '▲ Hide AI Summary';
+            this.textContent = '▲ Hide Summary';
             this.style.background = '#132c57';
             this.style.color = '#34d399';
             this.style.border = '1px solid #1a3a6e';
@@ -96,5 +155,41 @@ document.querySelectorAll('.summary-btn').forEach(btn => {
         }
     });
 });
+
+// Modal para leer artículo completo
+const newsModal = document.getElementById('newsArticleModal');
+document.querySelectorAll('.read-full-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.getElementById('modalArticleTicker').textContent = this.dataset.ticker;
+        document.getElementById('modalArticleHeadline').textContent = this.dataset.headline;
+        document.getElementById('modalArticleSource').textContent = this.dataset.source;
+        document.getElementById('modalArticleDate').textContent = this.dataset.date;
+        document.getElementById('modalArticleContent').textContent = this.dataset.text || this.dataset.headline;
+        
+        const sentiment = this.dataset.sentiment;
+        const sentEl = document.getElementById('modalArticleSentiment');
+        sentEl.textContent = sentiment;
+        if (sentiment === 'Bullish') {
+            sentEl.style.background = '#071f0e';
+            sentEl.style.color = '#34d399';
+            sentEl.style.border = '1px solid #064e3b';
+        } else if (sentiment === 'Bearish') {
+            sentEl.style.background = '#3f1111';
+            sentEl.style.color = '#fca5a5';
+            sentEl.style.border = '1px solid #7f1d1d';
+        } else {
+            sentEl.style.background = '#1c1917';
+            sentEl.style.color = '#a8a29e';
+            sentEl.style.border = '1px solid #44403c';
+        }
+
+        newsModal.style.display = 'flex';
+    });
+});
+
+document.getElementById('closeNewsModal').addEventListener('click', () => newsModal.style.display = 'none');
+document.getElementById('dismissNewsModal').addEventListener('click', () => newsModal.style.display = 'none');
+newsModal.addEventListener('click', (e) => { if (e.target === newsModal) newsModal.style.display = 'none'; });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') newsModal.style.display = 'none'; });
 </script>
 {% endblock %}

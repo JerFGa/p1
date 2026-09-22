@@ -63,9 +63,20 @@ def get_latest_predictions(limit=10):
     )
 
 
-def calculate_prediction_metrics(ticker=None):
-    """Calcula métricas de rendimiento de las predicciones."""
-    queryset = StockPrediction.objects.filter(actual_return__isnull=False)
+def calculate_prediction_metrics(ticker=None, model_version=None):
+    """Calcula métricas completas de rendimiento del modelo (Accuracy, RMSE, MAE, R², IC)."""
+    import numpy as np
+    
+    if not model_version:
+        if StockPrediction.objects.filter(model_version='variant_c_sentiment_augmented').exists():
+            model_version = 'variant_c_sentiment_augmented'
+        else:
+            model_version = 'alpha158_baseline'
+            
+    queryset = StockPrediction.objects.filter(
+        model_version=model_version,
+        actual_return__isnull=False
+    )
     
     if ticker:
         queryset = queryset.filter(ticker=ticker)
@@ -75,15 +86,34 @@ def calculate_prediction_metrics(ticker=None):
     if not predictions:
         return None
     
-    # Calcular correlación
-    predicted = [p['predicted_return'] for p in predictions]
-    actual = [p['actual_return'] for p in predictions]
+    df = pd.DataFrame(predictions)
+    y_pred = df['predicted_return'].values
+    y_true = df['actual_return'].values
     
-    correlation = pd.Series(predicted).corr(pd.Series(actual))
+    mae = float(np.mean(np.abs(y_pred - y_true)))
+    rmse = float(np.sqrt(np.mean((y_pred - y_true) ** 2)))
+    ss_res = float(np.sum((y_true - y_pred) ** 2))
+    ss_tot = float(np.sum((y_true - np.mean(y_true)) ** 2))
+    r2 = float(1 - (ss_res / ss_tot)) if ss_tot != 0 else 0.0
+    
+    correlation = float(pd.Series(y_pred).corr(pd.Series(y_true)))
+    
+    # Directional Accuracy (Hit Rate / Tasa de acierto de dirección)
+    correct_direction = (np.sign(y_pred) == np.sign(y_true))
+    accuracy = float(np.mean(correct_direction) * 100)
     
     return {
         'count': len(predictions),
-        'correlation': correlation,
-        'mean_predicted': sum(predicted) / len(predicted),
-        'mean_actual': sum(actual) / len(actual),
+        'accuracy': round(accuracy, 2),
+        'correlation': round(correlation, 4),
+        'ic': round(correlation, 4),
+        'mae': round(mae, 4),
+        'rmse': round(rmse, 4),
+        'r2': round(r2, 4),
+        'mean_predicted': float(np.mean(y_pred)),
+        'mean_actual': float(np.mean(y_true)),
+        'model_version': model_version,
+        'baseline_accuracy': 50.04,
+        'baseline_ic': 0.0091,
     }
+
