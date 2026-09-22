@@ -90,34 +90,67 @@
 
 {% block extra_js %}
 <script>
-const AMZN_CITATIONS = [
-    { num: 1, title: 'AWS Revenue Hits Record $24.2B in Q4', source: 'Reuters', date: 'Jan 3, 2025', snippet: 'Amazon Web Services reported record quarterly revenue of $24.2 billion, a 19% year-over-year increase, driven by AI infrastructure demand and enterprise cloud migrations.', confidence: 'High' },
-    { num: 2, title: 'Amazon Prime Membership Tops 200M Globally', source: 'Bloomberg', date: 'Jan 5, 2025', snippet: 'Amazon disclosed Prime membership surpassed 200 million globally, with strong retention in North America and accelerating growth across Latin America.', confidence: 'High' },
-    { num: 3, title: 'AMZN Advertising Revenue Grows 27% YoY', source: 'WSJ', date: 'Jan 7, 2025', snippet: "Amazon's advertising segment hit $14.6B for the quarter, now its third-largest business unit, benefiting from Prime Video ad-supported tier launch.", confidence: 'Medium' }
-];
-
-const TSLA_CITATIONS = [
-    { num: 1, title: 'Tesla Q4 Deliveries Miss Estimates at 484,507', source: 'CNBC', date: 'Jan 2, 2025', snippet: 'Tesla delivered 484,507 vehicles in Q4 2024, slightly below analyst consensus of 510,000. Price cuts and rising competition in China were cited as key headwinds.', confidence: 'High' },
-    { num: 2, title: 'FSD v12.5 Beta Shows 40% Fewer Interventions', source: 'Electrek', date: 'Dec 28, 2024', snippet: "Tesla's Full Self-Driving version 12.5 beta testers report roughly 40% fewer manual interventions versus v12.3, marking significant AI model improvement.", confidence: 'Medium' }
-];
-
-let messages = [{ id: 0, role: 'agent', text: "Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from 42 real-time sources for you.", ts: formatTime(new Date()) }];
+let messages = [{ id: 0, role: 'agent', text: "Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from our ML model and news sources.", ts: formatTime(new Date()) }];
 let loading = false;
 
 function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
 
-function buildReply(text) {
+async function buildReply(text) {
     const t = text.toLowerCase();
-    if (t.includes('amzn') || t.includes('amazon')) {
-        return { text: "Amazon (AMZN) shows strong momentum across all three major segments. AWS continues its record-breaking trajectory [1], while Prime membership milestones signal robust consumer retention [2]. Advertising revenue growth is accelerating faster than analysts projected [3], now representing a $58B annual run rate.", citations: AMZN_CITATIONS, showChart: 'AMZN' };
+    
+    // Detectar ticker
+    const tickerMatch = t.match(/\b(aapl|msft|amzn|tsla|nvda|googl|meta|nflx)\b/i);
+    const ticker = tickerMatch ? tickerMatch[1].toUpperCase() : null;
+    
+    if (ticker) {
+        // Buscar predicción y sentimiento real
+        try {
+            const [predRes, sentRes] = await Promise.all([
+                fetch(`/api/predictions/${ticker}/`),
+                fetch(`/api/sentiment/${ticker}/`)
+            ]);
+            
+            const predData = await predRes.json();
+            const sentData = await sentRes.json();
+            
+            const latestPred = predData.predictions?.[0];
+            const latestSent = sentData.sentiment?.[0];
+            
+            let sentimentText = 'neutral';
+            let sentimentColor = '#a8a29e';
+            
+            if (latestSent && latestSent.sentiment_mean > 0.2) {
+                sentimentText = 'bullish';
+                sentimentColor = '#34d399';
+            } else if (latestSent && latestSent.sentiment_mean < -0.2) {
+                sentimentText = 'bearish';
+                sentimentColor = '#f87171';
+            }
+            
+            const predReturn = latestPred ? (latestPred.predicted_return * 100).toFixed(2) : 'N/A';
+            const newsCount = latestSent ? latestSent.news_volume : 0;
+            
+            return { 
+                text: `<strong>${ticker}</strong> Analysis:<br><br>
+                       • Predicted Return: <span style="color: ${parseFloat(predReturn) >= 0 ? '#34d399' : '#f87171'}">${predReturn}%</span><br>
+                       • News Sentiment: <span style="color: ${sentimentColor}">${sentimentText}</span><br>
+                       • Recent News: ${newsCount} articles<br><br>
+                       Based on our Alpha158 + LightGBM model trained on S&P 500 data.` 
+            };
+        } catch (e) {
+            return { text: `I'm analyzing ${ticker}... Data temporarily unavailable. Please try again.` };
+        }
     }
-    if (t.includes('tsla') || t.includes('tesla')) {
-        return { text: "Tesla (TSLA) faces near-term delivery headwinds [1], but technological progress on autonomy remains a key differentiator [2]. Analyst consensus remains cautiously optimistic with a median 12-month target of $195. Margins are the key variable to watch in Q1 earnings.", citations: TSLA_CITATIONS, showChart: 'TSLA' };
+    
+    if (t.includes('fed') || t.includes('fomc') || t.includes('interest rate')) {
+        return { text: "The Federal Reserve's latest policy decisions impact market sentiment. Our model incorporates macroeconomic indicators through the Alpha158 feature set. Check the Analytics page for detailed model performance metrics." };
     }
-    if (t.includes('fed') || t.includes('fomc')) {
-        return { text: "The Federal Reserve held the federal funds rate at 5.25–5.50% in its latest FOMC meeting. Chair Powell emphasized patience before rate cuts, citing core PCE still running above the 2% target. Markets are pricing approximately two 25bp cuts by December 2025." };
+    
+    if (t.includes('market') || t.includes('sp500') || t.includes('s&p')) {
+        return { text: "Our ML model analyzes S&P 500 stocks using 158 technical features (Alpha158) combined with news sentiment. The model is trained on data from 2008-2026 with LightGBM. Visit Portfolio to see current predictions." };
     }
-    return { text: `I searched the FinancialRAG pipeline for "${text}". The latest news index shows mixed signals — institutional sentiment is slightly bullish while retail flows remain neutral. I recommend monitoring upcoming earnings reports and macro releases for clearer directional signals.` };
+    
+    return { text: `I searched for "${text}". Our FinancialRAG system combines technical analysis (Alpha158 features) with news sentiment analysis using FinBERT. Try asking about specific tickers like AAPL, TSLA, or AMZN for detailed predictions.` };
 }
 
 function renderMessages() {
@@ -184,7 +217,7 @@ function renderMessages() {
     document.getElementById('chips').style.display = messages.length === 1 && !loading ? 'flex' : 'none';
 }
 
-function send(text) {
+async function send(text) {
     if (!text.trim() || loading) return;
     const now = new Date();
     messages.push({ id: Date.now(), role: 'user', text: text.trim(), ts: formatTime(now) });
@@ -192,12 +225,10 @@ function send(text) {
     loading = true;
     renderMessages();
 
-    setTimeout(() => {
-        const reply = buildReply(text);
-        messages.push({ id: Date.now() + 1, role: 'agent', ts: formatTime(new Date()), ...reply });
-        loading = false;
-        renderMessages();
-    }, 1500);
+    const reply = await buildReply(text);
+    messages.push({ id: Date.now() + 1, role: 'agent', ts: formatTime(new Date()), ...reply });
+    loading = false;
+    renderMessages();
 }
 
 function showCitationModal(citation) {

@@ -51,24 +51,24 @@
 
     <div class="grid grid-cols-4 gap-3 mb-5">
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Total Queries (14d)</div>
-            <div class="text-xl font-bold text-white">822</div>
-            <div class="text-xs mt-1" style="color: #34d399;">+34% vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">Total Predictions</div>
+            <div class="text-xl font-bold text-white">{{ total_predictions|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">model outputs</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Avg Response Time</div>
-            <div class="text-xl font-bold text-white">1.4s</div>
-            <div class="text-xs mt-1" style="color: #34d399;">-12% vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">Unique Tickers</div>
+            <div class="text-xl font-bold text-white">{{ unique_tickers|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">instruments tracked</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Articles Indexed</div>
-            <div class="text-xl font-bold text-white">18,432</div>
-            <div class="text-xs mt-1" style="color: #34d399;">+8% vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">News Articles</div>
+            <div class="text-xl font-bold text-white">{{ total_articles|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">indexed</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Cache Hit Rate</div>
-            <div class="text-xl font-bold text-white">68%</div>
-            <div class="text-xs mt-1" style="color: #34d399;">+5pp vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">Sentiment Features</div>
+            <div class="text-xl font-bold text-white">{{ total_sentiment|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">computed</div>
         </div>
     </div>
 
@@ -85,39 +85,20 @@
 
         <div class="col-span-2 rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
             <div class="px-4 py-3" style="border-bottom: 1px solid #0d2040;">
-                <span class="text-sm font-medium" style="color: #94a3b8;">Source Utilization</span>
+                <span class="text-sm font-medium" style="color: #94a3b8;">News by Source</span>
             </div>
             <div class="flex flex-col items-center py-2">
                 <canvas id="sourceChart" height="160"></canvas>
                 <div class="w-full px-4 pb-3">
+                    {% for source in sources %}
                     <div class="flex items-center justify-between text-xs py-1">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #34d399;"></span>
-                            <span style="color: #64748b;">Reuters</span>
+                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ source.color }};"></span>
+                            <span style="color: #64748b;">{{ source.name }}</span>
                         </div>
-                        <span style="color: #94a3b8;">28%</span>
+                        <span style="color: #94a3b8;">{{ source.count }} ({{ source.percentage }}%)</span>
                     </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #10b981;"></span>
-                            <span style="color: #64748b;">Bloomberg</span>
-                        </div>
-                        <span style="color: #94a3b8;">22%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #059669;"></span>
-                            <span style="color: #64748b;">WSJ</span>
-                        </div>
-                        <span style="color: #94a3b8;">18%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #1a3a6e;"></span>
-                            <span style="color: #64748b;">CNBC</span>
-                        </div>
-                        <span style="color: #94a3b8;">14%</span>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
@@ -142,29 +123,18 @@
 
 {% block extra_js %}
 <script>
-const queryData = [
-    { day: 'Mon', queries: 34 }, { day: 'Tue', queries: 52 }, { day: 'Wed', queries: 41 },
-    { day: 'Thu', queries: 67 }, { day: 'Fri', queries: 89 }, { day: 'Sat', queries: 43 },
-    { day: 'Sun', queries: 28 }, { day: 'Mon', queries: 61 }, { day: 'Tue', queries: 78 },
-    { day: 'Wed', queries: 55 }, { day: 'Thu', queries: 92 }, { day: 'Fri', queries: 104 },
-    { day: 'Sat', queries: 47 }, { day: 'Sun', queries: 31 }
-];
+// Datos reales de predicciones por fecha
+const predictionData = {{ prediction_by_date|safe }};
 
-const sourceData = [
-    { name: 'Reuters', value: 28, color: '#34d399' },
-    { name: 'Bloomberg', value: 22, color: '#10b981' },
-    { name: 'WSJ', value: 18, color: '#059669' },
-    { name: 'CNBC', value: 14, color: '#1a3a6e' },
-    { name: 'FT', value: 10, color: '#132c57' },
-    { name: 'Others', value: 8, color: '#0d2040' }
-];
+// Datos reales de fuentes de noticias
+const sourceData = {{ sources_json|safe }};
 
 new Chart(document.getElementById('queryChart'), {
     type: 'line',
     data: {
-        labels: queryData.map(d => d.day),
+        labels: predictionData.map(d => d.date),
         datasets: [{
-            data: queryData.map(d => d.queries),
+            data: predictionData.map(d => d.count),
             borderColor: '#34d399',
             borderWidth: 2,
             tension: 0.4,
@@ -186,7 +156,7 @@ new Chart(document.getElementById('queryChart'), {
                 borderWidth: 1,
                 titleColor: '#64748b',
                 bodyColor: '#34d399',
-                callbacks: { label: ctx => ctx.parsed.y + ' queries' }
+                callbacks: { label: ctx => ctx.parsed.y + ' predictions' }
             }
         },
         scales: {
@@ -218,7 +188,7 @@ new Chart(document.getElementById('sourceChart'), {
                 borderWidth: 1,
                 titleColor: '#34d399',
                 bodyColor: '#64748b',
-                callbacks: { label: ctx => ctx.parsed + '% of sources' }
+                callbacks: { label: ctx => ctx.parsed + ' articles' }
             }
         }
     }

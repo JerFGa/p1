@@ -144,11 +144,63 @@ def newsfeed(request):
 
 
 def analytics(request):
-    """Analíticas del modelo."""
+    """Analíticas reales del modelo y datos."""
+    from core.models import StockPrediction, SentimentFeature, NewsArticle
+    from django.db.models import Count
+    import json
+    from collections import defaultdict
+    
+    # Métricas del modelo
     metrics = calculate_prediction_metrics()
+    
+    # Conteos reales
+    total_predictions = StockPrediction.objects.count()
+    unique_tickers = StockPrediction.objects.values('ticker').distinct().count()
+    total_articles = NewsArticle.objects.count()
+    total_sentiment = SentimentFeature.objects.count()
+    
+    # Predicciones por fecha (últimos 30 días)
+    predictions_by_date = StockPrediction.objects.values('date').annotate(
+        count=Count('id')
+    ).order_by('-date')[:30]
+    
+    prediction_by_date_list = [
+        {'date': str(p['date']), 'count': p['count']}
+        for p in predictions_by_date
+    ]
+    
+    # Noticias por fuente
+    sources = NewsArticle.objects.values('source').annotate(
+        count=Count('id')
+    ).order_by('-count')[:6]
+    
+    colors = ['#34d399', '#10b981', '#059669', '#1a3a6e', '#132c57', '#0d2040']
+    
+    sources_list = []
+    for idx, source in enumerate(sources):
+        source_name = source['source'] if source['source'] else 'Unknown'
+        sources_list.append({
+            'name': source_name,
+            'count': source['count'],
+            'percentage': round(source['count'] / total_articles * 100, 1) if total_articles > 0 else 0,
+            'color': colors[idx % len(colors)]
+        })
+    
+    # JSON para JavaScript
+    sources_json = json.dumps([
+        {'name': s['name'], 'value': s['count'], 'color': s['color']}
+        for s in sources_list
+    ])
     
     context = {
         'metrics': metrics,
+        'total_predictions': total_predictions,
+        'unique_tickers': unique_tickers,
+        'total_articles': total_articles,
+        'total_sentiment': total_sentiment,
+        'prediction_by_date': json.dumps(prediction_by_date_list),
+        'sources': sources_list,
+        'sources_json': sources_json,
     }
     
     return render(request, 'core/analytics.html', context)
