@@ -31,35 +31,35 @@
 
 <header class="flex items-center justify-between px-6 py-3 flex-shrink-0" style="border-bottom: 1px solid #0d2040; background: #040d1a; min-height: 64px;">
     <div>
-        <h1 class="text-sm font-semibold text-white">Financial News Assistant</h1>
-        <p class="text-xs" style="color: #334155;">Powered by RAG · Real-time market intelligence</p>
+        <h1 class="text-sm font-semibold text-white">{{ app_title|default:"Financial News Assistant" }}</h1>
+        <p class="text-xs" style="color: #334155;">{{ app_subtitle|default:"Powered by RAG · Real-time market intelligence" }}</p>
     </div>
     <div class="flex items-center gap-4">
-        <div class="text-xs px-3 py-1.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Session #4821</div>
+        <div class="text-xs px-3 py-1.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">{{ session_id|default:"Session" }}</div>
         <button id="newChatBtn" class="text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">New chat</button>
     </div>
 </header>
 
 <div id="messages" class="flex-1 overflow-y-auto px-6 py-5"></div>
 
+{% if suggested_queries %}
 <div id="chips" class="px-6 pb-3 flex flex-wrap gap-2">
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Analyze AMZN</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Analyze TSLA</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Fed Meeting Summary</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Compare AAPL vs MSFT</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Top movers this week</button>
+    {% for query in suggested_queries %}
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">{{ query }}</button>
+    {% endfor %}
 </div>
+{% endif %}
 
 <div class="px-6 pb-5 flex-shrink-0" style="border-top: 1px solid #0d2040; padding-top: 16px;">
     <div class="flex items-end gap-3 rounded-2xl px-4 py-3" style="background: #071428; border: 1px solid #132c57;">
-        <textarea id="chatInput" rows="1" placeholder="Ask about any stock, market news, or financial event…" class="flex-1 bg-transparent resize-none outline-none text-sm leading-relaxed" style="color: #e2e8f0; max-height: 120px; min-height: 24px; caret-color: #34d399; font-family: Inter, sans-serif;"></textarea>
+        <textarea id="chatInput" rows="1" placeholder="{{ chat_placeholder|default:'Ask about any stock, market news, or financial event…' }}" class="flex-1 bg-transparent resize-none outline-none text-sm leading-relaxed" style="color: #e2e8f0; max-height: 120px; min-height: 24px; caret-color: #34d399; font-family: Inter, sans-serif;"></textarea>
         <button id="sendBtn" class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed" style="background: #132c57; color: #475569;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
         </button>
     </div>
-    <p class="text-center text-xs mt-2" style="color: #0d2040;">Enter to send · Shift+Enter for new line</p>
+    <p class="text-center text-xs mt-2" style="color: #0d2040;">{{ chat_instructions|default:"Enter to send · Shift+Enter for new line" }}</p>
 </div>
 
 <div id="referenceModal" class="fixed inset-0 hidden items-center justify-center z-50 p-6" style="background: rgba(4,13,26,0.85); backdrop-filter: blur(4px);">
@@ -80,7 +80,7 @@
             </div>
             <div id="modalSnippet" class="rounded-xl p-4 text-sm leading-relaxed" style="background: #040d1a; border: 1px solid #0d2040; color: #94a3b8;"></div>
             <div class="mt-4 flex gap-2">
-                <button class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article ↗</button>
+                <button class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article </button>
                 <button id="dismissModal" class="text-xs px-4 py-2 rounded-xl transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Dismiss</button>
             </div>
         </div>
@@ -90,7 +90,7 @@
 
 {% block extra_js %}
 <script>
-let messages = [{ id: 0, role: 'agent', text: "Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from our ML model and news sources.", ts: formatTime(new Date()) }];
+let messages = [{ id: 0, role: 'agent', text: "{{ welcome_message|default:"Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from our ML model and news sources." }}", ts: formatTime(new Date()) }];
 let loading = false;
 
 function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
@@ -168,7 +168,7 @@ function renderMessages() {
         if (msg.citations) {
             content = `
                 <div class="font-medium text-xs mb-2 flex items-center gap-2" style="color: #34d399;">
-                    <span>▦</span> AI Analysis
+                    <span></span> AI Analysis
                     <span class="ml-auto text-xs px-2 py-0.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">${msg.citations.length} sources</span>
                 </div>
                 <p>${msg.text.replace(/\[(\d+)\]/g, (m, n) => `<button class="citation-badge" data-num="${n}" style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; font-size: 10px; font-weight: bold; margin: 0 2px; background: #132c57; color: #34d399; border: 1px solid #1a3a6e; cursor: pointer; vertical-align: super;">${n}</button>`)}</p>

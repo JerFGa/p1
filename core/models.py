@@ -52,6 +52,7 @@ class NewsArticle(models.Model):
     text = models.TextField()
     sentiment_score = models.FloatField(null=True, blank=True)
     source = models.CharField(max_length=100, blank=True)
+    category = models.CharField(max_length=50, blank=True, default='General')
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:

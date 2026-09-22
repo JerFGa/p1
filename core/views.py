@@ -9,6 +9,9 @@ from core.services import (
 
 def home(request):
     """Página principal con resumen de predicciones y sentimiento."""
+    from core.models import NewsArticle, StockPrediction
+    from django.db.models import Count
+    
     predictions = get_latest_predictions(limit=6)
     sentiment = get_latest_sentiment(limit=6)
     
@@ -40,7 +43,36 @@ def home(request):
             'sentiment_color': sentiment_color,
         })
     
-    return render(request, 'core/home.html', {'stocks': stocks_data})
+    # Obtener tickers únicos para sugerencias de búsqueda
+    unique_tickers = list(
+        StockPrediction.objects.values_list('ticker', flat=True)
+        .distinct()[:8]
+    )
+    
+    # Obtener categorías de noticias para filtros
+    categories = list(
+        NewsArticle.objects.values_list('category', flat=True)
+        .distinct()
+        .order_by('category')
+    )
+    
+    # Contar artículos
+    article_count = NewsArticle.objects.count()
+    
+    context = {
+        'stocks': stocks_data,
+        'app_title': 'Financial News Assistant',
+        'app_subtitle': 'Powered by RAG · Real-time market intelligence',
+        'session_id': f'Session #{request.session.session_key[:8] if request.session.session_key else "New"}',
+        'chat_placeholder': 'Ask about any stock, market news, or financial event…',
+        'chat_instructions': 'Enter to send · Shift+Enter for new line',
+        'welcome_message': "Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from our ML model and news sources.",
+        'suggested_queries': [f'Analyze {ticker}' for ticker in unique_tickers[:5]],
+        'categories': categories,
+        'article_count': article_count,
+    }
+    
+    return render(request, 'core/home.html', context)
 
 
 def portfolio(request):
@@ -136,11 +168,28 @@ def newsfeed(request):
     
     articles = list(
         NewsArticle.objects
-        .order_by('-date', 'ticker')[:10]
-        .values('id', 'ticker', 'date', 'headline', 'source', 'sentiment_score')
+        .order_by('-date', 'ticker')[:50]
+        .values('id', 'ticker', 'date', 'headline', 'source', 'sentiment_score', 'category')
     )
     
-    return render(request, 'core/newsfeed.html', {'articles': articles})
+    # Obtener categorías únicas
+    categories = list(
+        NewsArticle.objects.values_list('category', flat=True)
+        .distinct()
+        .order_by('category')
+    )
+    
+    # Contar artículos
+    article_count = NewsArticle.objects.count()
+    
+    context = {
+        'articles': articles,
+        'categories': categories,
+        'article_count': article_count,
+        'feed_subtitle': f'Real-time articles from verified financial sources',
+    }
+    
+    return render(request, 'core/newsfeed.html', context)
 
 
 def analytics(request):
