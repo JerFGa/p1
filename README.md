@@ -278,32 +278,10 @@ python manage.py retrain_model --variant c --clear-existing
 python manage.py enrich_financial_data
 ```
 
-## Notas de Desarrollo
-
-### Ramas
-- `development` - Rama principal de desarrollo
-- `jeremiasFigueroaGarcia` - Proyecto MovieReviews (separado)
-
-### Repositorios
-- **FinancialRAG**: Este proyecto (rama development)
-- **MovieReviews**: Proyecto separado en rama jeremiasFigueroaGarcia
-
-### Datos
-- Las predicciones base estan en `core/data/predictions.csv` (1,054,461 registros)
-- Las noticias sinteticas se generan con `--generate-synthetic`
-- El modelo FinBERT se descarga automaticamente la primera vez
-
 ## Licencia
 
 Proyecto academico - EAFIT University
 
 ## Autores
 
-- Jeremias Figueroa Garcia
-- Desarrollo como proyecto final de curso
-
-## Agradecimientos
-
-- Qlib - Framework de investigacion cuantitativa
-- FinBERT - Modelo de sentimiento financiero
-- LightGBM - Gradient boosting framework
+<!-- Agregar autores aqui -->
