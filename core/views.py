@@ -36,7 +36,7 @@ def home(request):
         
         stocks_data.append({
             'ticker': pred['ticker'],
-            'predicted_return': pred['predicted_return'],
+            'predicted_return': pred['predicted_return'] * 100,  # Convertir a porcentaje
             'date': pred['date'],
             'sentiment': sentiment_label,
             'sentiment_bg': sentiment_bg,
@@ -48,6 +48,9 @@ def home(request):
         StockPrediction.objects.values_list('ticker', flat=True)
         .distinct()[:8]
     )
+    
+    # Contar total de tickers únicos para el pipeline
+    unique_tickers_count = StockPrediction.objects.values('ticker').distinct().count()
     
     # Obtener categorías de noticias para filtros
     categories = list(
@@ -70,6 +73,8 @@ def home(request):
         'suggested_queries': [f'Analyze {ticker}' for ticker in unique_tickers[:5]],
         'categories': categories,
         'article_count': article_count,
+        'pipeline_sources': unique_tickers_count,
+        'pipeline_updated': 'just now',
     }
     
     return render(request, 'core/home.html', context)
@@ -79,7 +84,7 @@ def portfolio(request):
     """Portafolio con predicciones reales del modelo."""
     from core.models import StockPrediction, SentimentFeature
     from django.db.models import Avg, Count
-    from datetime import datetime
+    from datetime import datetime, timedelta
     
     # Obtener métricas reales del portafolio
     latest_date = StockPrediction.objects.order_by('-date').values_list('date', flat=True).first()
@@ -141,13 +146,45 @@ def portfolio(request):
                 'sentiment_border': sentiment_border,
             })
         
+        # Calcular retorno YTD (Year-to-Date)
+        # Simulado basado en la suma de predicted_return del año actual
+        current_year = datetime.now().year
+        ytd_predictions = StockPrediction.objects.filter(
+            date__year=current_year
+        ).aggregate(total=Avg('predicted_return'))['total'] or 0
+        ytd_return = ytd_predictions * 100 * 252  # Anualizado (252 días trading)
+        
+        # Preparar datos para el gráfico de rendimiento (últimos 30 días)
+        from django.db.models import Sum
+        perf_by_date = StockPrediction.objects.filter(
+            date__gte=latest_date - timedelta(days=30)
+        ).values('date').annotate(
+            avg_return=Avg('predicted_return')
+        ).order_by('date')
+        
+        # Simular valor de portafolio basado en retornos acumulados
+        portfolio_value = 100000  # Valor inicial
+        perf_chart_data = []
+        for day_data in perf_by_date:
+            portfolio_value *= (1 + day_data['avg_return'])
+            perf_chart_data.append({
+                'label': day_data['date'].strftime('%b %d'),
+                'value': round(portfolio_value, 2)
+            })
+        
+        # Si no hay datos, generar datos vacíos
+        if not perf_chart_data:
+            perf_chart_data = [{'label': 'N/A', 'value': 100000}]
+        
         context = {
             'stocks': stocks,
             'total_positions': total_positions,
             'total_predictions': total_predictions,
-            'mean_predicted': mean_predicted,
+            'mean_predicted': mean_predicted * 100,  # Convertir a porcentaje
             'correlation': correlation,
             'last_updated': latest_date.strftime('%b %d, %Y · %H:%M EST'),
+            'ytd_return': ytd_return,
+            'perf_chart_data': perf_chart_data,
         }
     else:
         context = {
