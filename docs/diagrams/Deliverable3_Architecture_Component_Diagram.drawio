@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" agent="FinancialRAG" version="21.0.0">
+  <diagram name="FinancialRAG Component &amp; Architecture Diagram" id="financialrag-arch">
+    <mxGraphModel dx="1422" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1400" pageHeight="1000" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="legend_box" value="&lt;b&gt;Diagram Key&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;childLayout=stackLayout;horizontal=1;startSize=26;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;rounded=1;arcSize=8;fillColor=#f8fafc;strokeColor=#cbd5e1;" parent="1" vertex="1">
+          <mxGeometry as="geometry" x="30" y="30" width="160" height="190" />
+        </mxCell>
+        <mxCell id="key_layer" value="Layer" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#d5e8d4;strokeColor=#82b366;fontColor=#274e13;align=left;spacingLeft=10;" parent="legend_box" vertex="1">
+          <mxGeometry as="geometry" x="0" y="26" width="160" height="30" />
+        </mxCell>
+        <mxCell id="key_package" value="Package / Module" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#82b366;strokeWidth=2;fontColor=#274e13;align=left;spacingLeft=10;" parent="legend_box" vertex="1">
+          <mxGeometry as="geometry" x="0" y="56" width="160" height="30" />
+        </mxCell>
+        <mxCell id="key_class" value="Class / Component" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;fontColor=#1e3a8a;align=left;spacingLeft=10;" parent="legend_box" vertex="1">
+          <mxGeometry as="geometry" x="0" y="86" width="160" height="30" />
+        </mxCell>
+        <mxCell id="key_dep" value="---&amp;gt; Dependency" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;fontColor=#b91c1c;align=left;spacingLeft=10;" parent="legend_box" vertex="1">
+          <mxGeometry as="geometry" x="0" y="116" width="160" height="25" />
+        </mxCell>
+        <mxCell id="key_http" value="---&amp;gt; HTTP Req/Res" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;fontColor=#d97706;align=left;spacingLeft=10;" parent="legend_box" vertex="1">
+          <mxGeometry as="geometry" x="0" y="141" width="160" height="25" />
+        </mxCell>
+        <mxCell id="key_comm" value="&amp;lt;---&amp;gt; Communication" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=none;fontColor=#334155;align=left;spacingLeft=10;" parent="legend_box" vertex="1">
+          <mxGeometry as="geometry" x="0" y="166" width="160" height="24" />
+        </mxCell>
+        <mxCell id="client_box" value="&lt;b&gt;Client Layer (Web &amp;amp; Mobile UI)&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=26;rounded=1;arcSize=6;fillColor=#f1f5f9;strokeColor=#94a3b8;" parent="1" vertex="1">
+          <mxGeometry as="geometry" x="450" y="30" width="480" height="130" />
+        </mxCell>
+        <mxCell id="client_desktop" value="&amp;lt;b&amp;gt;Desktop Browser&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;Financial Dashboard&amp;lt;br&amp;gt;(Tailwind + Chart.js)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="client_box" vertex="1">
+          <mxGeometry as="geometry" x="40" y="40" width="170" height="65" />
+        </mxCell>
+        <mxCell id="client_mobile" value="&amp;lt;b&amp;gt;Mobile Browser&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;Responsive View&amp;lt;br&amp;gt;(Sidebar Drawer)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="client_box" vertex="1">
+          <mxGeometry as="geometry" x="260" y="40" width="170" height="65" />
+        </mxCell>
+        <mxCell id="server_box" value="&lt;b&gt;Server Container: Django Web Application (p1 / Python 3.14)&lt;/b&gt;" style="swimlane;fontStyle=1;align=center;verticalAlign=top;startSize=30;rounded=1;arcSize=4;fillColor=#ffffff;strokeColor=#3b82f6;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry as="geometry" x="230" y="220" width="920" height="680" />
+        </mxCell>
+        <mxCell id="routes_pkg" value="&lt;b&gt;p1/ &amp;amp; core/ Routing Layer&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f8fafc;strokeColor=#82b366;strokeWidth=1;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="30" y="45" width="220" height="100" />
+        </mxCell>
+        <mxCell id="file_urls_p1" value="p1/urls.py" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="routes_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="30" width="180" height="28" />
+        </mxCell>
+        <mxCell id="file_urls_core" value="core/urls.py (15 Routes)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="routes_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="62" width="180" height="28" />
+        </mxCell>
+        <mxCell id="mw_pkg" value="&lt;b&gt;p1/ Middleware Layer&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f8fafc;strokeColor=#82b366;strokeWidth=1;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="270" y="45" width="280" height="100" />
+        </mxCell>
+        <mxCell id="mw_security" value="Security &amp;amp; Session Middleware" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="mw_pkg" vertex="1">
+          <mxGeometry as="geometry" x="15" y="30" width="250" height="28" />
+        </mxCell>
+        <mxCell id="mw_csrf" value="CsrfViewMiddleware &amp;amp; XFrameOptions" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="mw_pkg" vertex="1">
+          <mxGeometry as="geometry" x="15" y="62" width="250" height="28" />
+        </mxCell>
+        <mxCell id="ctx_pkg" value="&lt;b&gt;core/ Context Processors&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f8fafc;strokeColor=#82b366;strokeWidth=1;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="570" y="45" width="320" height="100" />
+        </mxCell>
+        <mxCell id="ctx_pipeline" value="pipeline_status (Live DB Telemetry)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="ctx_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="30" width="280" height="28" />
+        </mxCell>
+        <mxCell id="file_admin" value="core/admin.py (Admin Panel)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="ctx_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="62" width="280" height="28" />
+        </mxCell>
+        <mxCell id="controllers_pkg" value="&lt;b&gt;core/views.py (HTTP Controllers Layer)&lt;/b&gt;" style="swimlane;startSize=24;fillColor=#f0fdf4;strokeColor=#16a34a;strokeWidth=2;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="30" y="170" width="480" height="240" />
+        </mxCell>
+        <mxCell id="view_home" value="home(request)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="35" width="130" height="30" />
+        </mxCell>
+        <mxCell id="view_portfolio" value="portfolio(request)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="170" y="35" width="140" height="30" />
+        </mxCell>
+        <mxCell id="view_newsfeed" value="newsfeed(request)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="330" y="35" width="130" height="30" />
+        </mxCell>
+        <mxCell id="view_analytics" value="analytics(request)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="75" width="130" height="30" />
+        </mxCell>
+        <mxCell id="view_settings" value="settings(request)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="170" y="75" width="140" height="30" />
+        </mxCell>
+        <mxCell id="view_api_chat" value="api_chat(POST)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#2563eb;fontStyle=1;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="330" y="75" width="130" height="30" />
+        </mxCell>
+        <mxCell id="view_api_history" value="api_ticker_history(ticker)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="115" width="200" height="30" />
+        </mxCell>
+        <mxCell id="view_api_vol" value="api_analytics_volume(range)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="240" y="115" width="220" height="30" />
+        </mxCell>
+        <mxCell id="view_api_preds" value="api_predictions(ticker)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="155" width="200" height="30" />
+        </mxCell>
+        <mxCell id="view_api_sent" value="api_sentiment(ticker)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="240" y="155" width="220" height="30" />
+        </mxCell>
+        <mxCell id="view_api_metrics" value="api_metrics()" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="195" width="200" height="30" />
+        </mxCell>
+        <mxCell id="view_api_save_settings" value="api_save_settings(POST)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="controllers_pkg" vertex="1">
+          <mxGeometry as="geometry" x="240" y="195" width="220" height="30" />
+        </mxCell>
+        <mxCell id="services_pkg" value="&lt;b&gt;core/services/ (Business Logic &amp;amp; AI Layer)&lt;/b&gt;" style="swimlane;startSize=24;fillColor=#fefce8;strokeColor=#ca8a04;strokeWidth=2;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="540" y="170" width="350" height="240" />
+        </mxCell>
+        <mxCell id="srv_rag" value="&amp;lt;b&amp;gt;rag_service.py&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;Hybrid Retriever &amp;amp; Synthesizer&amp;lt;br&amp;gt;(Citations [1], Evidence Extraction)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef08a;strokeColor=#eab308;" parent="services_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="35" width="310" height="50" />
+        </mxCell>
+        <mxCell id="srv_ml" value="&amp;lt;b&amp;gt;ml_service.py&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;Variant C (Alpha158 + LightGBM)&amp;lt;br&amp;gt;Meta-Labeling (65.35% Hit Rate)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef08a;strokeColor=#eab308;" parent="services_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="95" width="310" height="55" />
+        </mxCell>
+        <mxCell id="srv_sent" value="&amp;lt;b&amp;gt;sentiment_service.py&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;FinBERT Aggregator &amp;amp; Dispersion" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#fef08a;strokeColor=#eab308;" parent="services_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="160" width="310" height="45" />
+        </mxCell>
+        <mxCell id="models_pkg" value="&lt;b&gt;core/models.py (Data Access &amp;amp; Entities)&lt;/b&gt;" style="swimlane;startSize=24;fillColor=#f8fafc;strokeColor=#82b366;strokeWidth=2;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="30" y="435" width="480" height="220" />
+        </mxCell>
+        <mxCell id="mod_pred" value="&amp;lt;b&amp;gt;StockPrediction&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;ticker, date, predicted_return, actual_return, model_version (1.07M rows)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="models_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="35" width="440" height="38" />
+        </mxCell>
+        <mxCell id="mod_article" value="&amp;lt;b&amp;gt;NewsArticle&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;ticker, headline, text, source, sentiment_score, category, date (1,322 rows)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="models_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="80" width="440" height="38" />
+        </mxCell>
+        <mxCell id="mod_sent" value="&amp;lt;b&amp;gt;SentimentFeature&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;ticker, date, sentiment_mean, max, dispersion, news_volume (816 rows)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="models_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="125" width="440" height="38" />
+        </mxCell>
+        <mxCell id="mod_chat" value="&amp;lt;b&amp;gt;ChatQuery&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;query_text, response_text, latency_ms, sources_count, created_at" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#dae8fc;strokeColor=#6c8ebf;" parent="models_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="170" width="440" height="38" />
+        </mxCell>
+        <mxCell id="templates_pkg" value="&lt;b&gt;core/templates/ (Presentation / Views)&lt;/b&gt;" style="swimlane;startSize=24;fillColor=#f8fafc;strokeColor=#82b366;strokeWidth=1;" parent="server_box" vertex="1">
+          <mxGeometry as="geometry" x="540" y="435" width="350" height="220" />
+        </mxCell>
+        <mxCell id="tpl_base" value="base.html (Sidebar, Pipeline Status)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="templates_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="35" width="310" height="30" />
+        </mxCell>
+        <mxCell id="tpl_home" value="home.html (RAG Chat, Top Tickers)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="templates_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="70" width="310" height="30" />
+        </mxCell>
+        <mxCell id="tpl_portfolio" value="portfolio.html (Table, 30d Modal)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="templates_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="105" width="310" height="30" />
+        </mxCell>
+        <mxCell id="tpl_analytics" value="analytics.html (Model KPIs, Charts)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="templates_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="140" width="310" height="30" />
+        </mxCell>
+        <mxCell id="tpl_news_settings" value="newsfeed.html &amp;amp; settings.html" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#e2e8f0;strokeColor=#64748b;" parent="templates_pkg" vertex="1">
+          <mxGeometry as="geometry" x="20" y="175" width="310" height="30" />
+        </mxCell>
+        <mxCell id="db_box" value="&lt;b&gt;Database Layer&lt;/b&gt;" style="swimlane;startSize=26;fillColor=#f1f5f9;strokeColor=#475569;" parent="1" vertex="1">
+          <mxGeometry as="geometry" x="30" y="470" width="160" height="160" />
+        </mxCell>
+        <mxCell id="db_sqlite" value="&amp;lt;b&amp;gt;SQLite 3&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;db.sqlite3&amp;lt;br&amp;gt;(189 MB)&amp;lt;br&amp;gt;&amp;lt;i&amp;gt;Configurable via .env&amp;lt;/i&amp;gt;" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;size=15;fillColor=#cbd5e1;strokeColor=#475569;" parent="db_box" vertex="1">
+          <mxGeometry as="geometry" x="20" y="35" width="120" height="105" />
+        </mxCell>
+        <mxCell id="ext_box" value="&lt;b&gt;External Services &amp;amp; AI Providers&lt;/b&gt;" style="swimlane;startSize=26;fillColor=#fdf2f8;strokeColor=#db2777;strokeWidth=2;" parent="1" vertex="1">
+          <mxGeometry as="geometry" x="1180" y="260" width="200" height="360" />
+        </mxCell>
+        <mxCell id="ext_finbert" value="&amp;lt;b&amp;gt;Prosus FinBERT&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;Transformer NLP&amp;lt;br&amp;gt;(HuggingFace Hub)&amp;lt;br&amp;gt;Sentiment Analysis" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#ec4899;" parent="ext_box" vertex="1">
+          <mxGeometry as="geometry" x="15" y="40" width="170" height="80" />
+        </mxCell>
+        <mxCell id="ext_ollama" value="&amp;lt;b&amp;gt;Ollama Local LLM&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;http://localhost:11434&amp;lt;br&amp;gt;Llama 3 / Qwen 2.5&amp;lt;br&amp;gt;(Configured in .env)" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#ec4899;" parent="ext_box" vertex="1">
+          <mxGeometry as="geometry" x="15" y="140" width="170" height="80" />
+        </mxCell>
+        <mxCell id="ext_yfinance" value="&amp;lt;b&amp;gt;Yahoo Finance API&amp;lt;/b&amp;gt;&amp;lt;br&amp;gt;Historical Prices &amp;amp; S&amp;amp;P 500 Market Data" style="rounded=1;whiteSpace=wrap;html=1;fillColor=#fce7f3;strokeColor=#ec4899;" parent="ext_box" vertex="1">
+          <mxGeometry as="geometry" x="15" y="245" width="170" height="80" />
+        </mxCell>
+        <mxCell id="e_client_to_server" value="HTTP Requests (GET/POST)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;" parent="1" edge="1" source="client_box" target="routes_pkg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_server_to_client" value="HTML / CSS / JSON Response" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#d97706;strokeWidth=2;dashed=1;" parent="1" edge="1" source="templates_pkg" target="client_box">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_routes_to_views" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#334155;strokeWidth=1;" parent="1" edge="1" source="routes_pkg" target="controllers_pkg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_views_to_services" value="Delegates ML/RAG Logic" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b91c1c;strokeWidth=1;dashed=1;" parent="1" edge="1" source="controllers_pkg" target="services_pkg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_views_to_models" value="Queries ORM" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b91c1c;strokeWidth=1;dashed=1;" parent="1" edge="1" source="controllers_pkg" target="models_pkg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_services_to_models" value="Fetches Corpus / Features" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#b91c1c;strokeWidth=1;dashed=1;" parent="1" edge="1" source="services_pkg" target="models_pkg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_views_to_templates" value="Renders Context" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#16a34a;strokeWidth=1;" parent="1" edge="1" source="controllers_pkg" target="templates_pkg">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_models_to_db" value="SQL Transactions" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#475569;strokeWidth=2;" parent="1" edge="1" source="models_pkg" target="db_sqlite">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_services_to_finbert" value="Embeddings / Scores" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#db2777;strokeWidth=2;" parent="1" edge="1" source="srv_sent" target="ext_finbert">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+        <mxCell id="e_services_to_ollama" value="REST POST /generate" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#db2777;strokeWidth=2;" parent="1" edge="1" source="srv_rag" target="ext_ollama">
+          <mxGeometry as="geometry" relative="1" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
