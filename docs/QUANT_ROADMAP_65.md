@@ -106,5 +106,5 @@ class TripleBarrierSignal(models.Model):
    * Evaluar la curva de precisión vs. umbral de corte de probabilidad ($0.50 \to 0.75$).
    * Demostrar empíricamente que con umbral $\ge 0.65$, el Hit Rate se ubica en el intervalo $[60\%, 65\%]$.
 4. **Fase D: Integración en Vistas (`portfolio.html` y `analytics.html`)**
-   * Agregar en el Portfolio un badge de "Alta Convicción" (ej. 🟢 *Strong Buy* $P=72\%$).
+   * Agregar en el Portfolio un badge de "Alta Convicción" (ej. [Strong Buy] P=72%).
    * Mostrar en Analytics la matriz de confusión del Meta-Modelo y la curva ROC-AUC.
