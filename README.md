@@ -282,6 +282,7 @@ python manage.py enrich_financial_data
 
 Proyecto academico - EAFIT University
 
-## Autores
+## Autor
 
-<!-- Agregar autores aqui -->
+Jeremías Figueroa García (jfigueroag@eafit.edu.co)
+Universidad EAFIT
