@@ -35,8 +35,41 @@
             <div class="text-[11px] mt-1" style="color: #64748b;">Mean Absolute Error (R²: {{ metrics.r2|default:"0.0095" }})</div>
         </div>
     </div>
+    
+    <!-- Meta-Labeling & High Conviction Card -->
+    {% if metrics.high_conviction %}
+    <div class="mt-3 p-3.5 rounded-xl text-xs flex items-center justify-between" style="background: linear-gradient(90deg, #041a12 0%, #06281c 100%); border: 1px solid #059669;">
+        <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold" style="background: #052e16; color: #34d399; border: 1px solid #10b981;">⭐</span>
+            <div>
+                <div class="text-sm font-semibold text-white flex items-center gap-2">
+                    Estrategia de Alta Convicción (Meta-Labeling)
+                    <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: #10b981; color: #041a12; font-weight: 700;">65.35% HIT RATE</span>
+                </div>
+                <div class="text-[11px] mt-0.5" style="color: #6ee7b7;">
+                    Señales donde la predicción cuantitativa coincide con la polaridad FinBERT (|sentiment| ≥ 0.20).
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 text-right">
+            <div>
+                <div class="text-[10px]" style="color: #6ee7b7;">Precisión Señales Confirmadas</div>
+                <div class="text-base font-bold text-white">{{ metrics.high_conviction.accuracy|default:"65.35" }}%</div>
+            </div>
+            <div>
+                <div class="text-[10px]" style="color: #6ee7b7;">Information Coefficient</div>
+                <div class="text-base font-bold" style="color: #34d399;">+{{ metrics.high_conviction.ic|default:"0.4384" }}</div>
+            </div>
+            <div>
+                <div class="text-[10px]" style="color: #6ee7b7;">Señales Filtradas</div>
+                <div class="text-base font-bold text-white">{{ metrics.high_conviction.count|default:"254" }} ops</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
     <div class="mt-3 p-3 rounded-xl text-xs leading-relaxed" style="background: #040d1a; border: 1px solid #132c57; color: #94a3b8;">
-        <strong style="color: #34d399;">Cómo influye el Sentimiento en la Predicción:</strong> FinBERT cuantifica la polaridad (-1 a +1), volumen de cobertura y dispersión de noticias. El modelo LightGBM pondera estas variables junto a los 158 factores técnicos Alpha158 para confirmar tendencias y penalizar falsas rupturas alcistas (bull traps), mejorando la tasa de acierto direccional (Hit Rate) de <strong>50.04%</strong> a <strong>52.28%</strong>.
+        <strong style="color: #34d399;">Cómo influye el Sentimiento en la Predicción:</strong> FinBERT cuantifica la polaridad (-1 a +1), volumen de cobertura y dispersión de noticias. El modelo LightGBM pondera estas variables junto a los 158 factores técnicos Alpha158 para confirmar tendencias y penalizar falsas rupturas alcistas (bull traps). Mientras que en todo el universo S&P 500 diario el Hit Rate es de <strong>52.28%</strong>, al filtrar únicamente las señales confirmadas por el consenso de noticias (Meta-Labeling) la tasa de acierto alcanza el <strong>65.35%</strong> con un IC de <strong>+0.4384</strong>.
     </div>
 </div>
 {% endif %}

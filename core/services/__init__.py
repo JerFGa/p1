@@ -11,6 +11,7 @@ from .ml_service import (
     get_predictions_for_ticker,
     get_latest_predictions,
     calculate_prediction_metrics,
+    calculate_conviction_metrics,
 )
 
 from .sentiment_service import (
@@ -27,6 +28,7 @@ __all__ = [
     'get_predictions_for_ticker',
     'get_latest_predictions',
     'calculate_prediction_metrics',
+    'calculate_conviction_metrics',
     'load_news_from_csv',
     'compute_sentiment_features',
     'get_sentiment_for_ticker',

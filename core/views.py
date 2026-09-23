@@ -162,6 +162,12 @@ def portfolio(request):
                 sentiment_color = '#a8a29e'
                 sentiment_border = '#44403c'
 
+            is_high_conviction = False
+            if sent and abs(sent.sentiment_mean) >= 0.2:
+                if (pred.predicted_return > 0 and sent.sentiment_mean > 0) or (pred.predicted_return < 0 and sent.sentiment_mean < 0):
+                    if abs(pred.predicted_return) >= 0.03:
+                        is_high_conviction = True
+
             stocks.append({
                 'ticker': pred.ticker,
                 'date': pred.date,
@@ -171,6 +177,7 @@ def portfolio(request):
                 'sentiment_bg': sentiment_bg,
                 'sentiment_color': sentiment_color,
                 'sentiment_border': sentiment_border,
+                'is_high_conviction': is_high_conviction,
             })
 
         # Retorno YTD anualizado

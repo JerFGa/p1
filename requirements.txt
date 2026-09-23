@@ -1,9 +1,12 @@
 asgiref==3.12.1
 Django==6.1.1
 sqlparse==0.6.0
+python-dotenv>=1.0.0
 numpy
 pandas
 scikit-learn
+lightgbm>=4.0.0
+requests>=2.31.0
 matplotlib
 seaborn
 plotly

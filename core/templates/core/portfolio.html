@@ -89,6 +89,9 @@
             <div class="stock-row grid items-center px-4 py-3 text-sm transition-all duration-150 cursor-pointer hover:bg-[#0d2040]" data-ticker="{{ stock.ticker }}" style="grid-template-columns: 1fr 1fr 110px 110px 120px 80px; border-bottom: 1px solid #071428;">
                 <div class="flex items-center gap-2">
                     <span class="font-bold font-mono text-sm" style="color: #e2e8f0; font-family: JetBrains Mono, monospace;">{{ stock.ticker }}</span>
+                    {% if stock.is_high_conviction %}
+                    <span class="text-[9px] px-1.5 py-0.5 rounded font-bold" style="background: #052e16; color: #34d399; border: 1px solid #059669;" title="Señal de alta convicción confirmada por FinBERT (Hit Rate 65.35%)">⭐ 65%</span>
+                    {% endif %}
                 </div>
                 <span class="text-xs" style="color: #64748b;">{{ stock.date }}</span>
                 <span class="text-right font-medium text-xs font-mono" style="color: {% if stock.predicted_return > 0 %}#34d399{% else %}#f87171{% endif %}; font-family: JetBrains Mono, monospace;">

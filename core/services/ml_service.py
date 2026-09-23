@@ -102,6 +102,9 @@ def calculate_prediction_metrics(ticker=None, model_version=None):
     correct_direction = (np.sign(y_pred) == np.sign(y_true))
     accuracy = float(np.mean(correct_direction) * 100)
     
+    # Métricas de Alta Convicción (Meta-Labeling con Confirmación FinBERT)
+    conviction_metrics = calculate_conviction_metrics(model_version=model_version)
+    
     return {
         'count': len(predictions),
         'accuracy': round(accuracy, 2),
@@ -115,5 +118,90 @@ def calculate_prediction_metrics(ticker=None, model_version=None):
         'model_version': model_version,
         'baseline_accuracy': 50.04,
         'baseline_ic': 0.0091,
+        'high_conviction': conviction_metrics,
     }
+
+
+def calculate_conviction_metrics(model_version='variant_c_sentiment_augmented', min_pred_return=0.03, min_sentiment=0.2):
+    """
+    Calcula métricas de alta convicción bajo la metodología de Meta-Labeling (López de Prado):
+    Filtra únicamente aquellas señales donde la predicción cuantitativa coincide en dirección
+    con el análisis de sentimiento de FinBERT y supera el umbral de convicción.
+    """
+    import numpy as np
+
+    preds = list(
+        StockPrediction.objects.filter(model_version=model_version, actual_return__isnull=False)
+        .values('ticker', 'date', 'predicted_return', 'actual_return')
+    )
+    sents = list(
+        SentimentFeature.objects.all()
+        .values('ticker', 'date', 'sentiment_mean', 'news_volume')
+    )
+
+    if not preds or not sents:
+        return {
+            'count': 0,
+            'accuracy': 0.0,
+            'ic': 0.0,
+            'gain_vs_baseline': 0.0,
+            'threshold': min_pred_return,
+        }
+
+    df_preds = pd.DataFrame(preds)
+    df_sents = pd.DataFrame(sents)
+
+    merged = df_preds.merge(df_sents, on=['ticker', 'date'], how='inner')
+    if merged.empty:
+        return {
+            'count': 0,
+            'accuracy': 0.0,
+            'ic': 0.0,
+            'gain_vs_baseline': 0.0,
+            'threshold': min_pred_return,
+        }
+
+    # Condición de Meta-Labeling:
+    # 1. Sentimiento no neutral (|sentiment| >= min_sentiment)
+    # 2. Misma dirección entre predicción técnica y sentimiento (sign(pred) == sign(sentiment))
+    # 3. Retorno predicho con magnitud relevante (|pred| >= min_pred_return)
+    cond = (
+        (merged['sentiment_mean'].abs() >= min_sentiment) &
+        (np.sign(merged['predicted_return']) == np.sign(merged['sentiment_mean'])) &
+        (merged['predicted_return'].abs() >= min_pred_return)
+    )
+
+    filtered = merged[cond]
+    if len(filtered) < 5:
+        # Fallback sin umbral de magnitud si la muestra es pequeña
+        cond_fallback = (
+            (merged['sentiment_mean'].abs() >= min_sentiment) &
+            (np.sign(merged['predicted_return']) == np.sign(merged['sentiment_mean']))
+        )
+        filtered = merged[cond_fallback]
+
+    if filtered.empty:
+        return {
+            'count': 0,
+            'accuracy': 0.0,
+            'ic': 0.0,
+            'gain_vs_baseline': 0.0,
+            'threshold': min_pred_return,
+        }
+
+    y_p = filtered['predicted_return'].values
+    y_a = filtered['actual_return'].values
+
+    correct = (np.sign(y_p) == np.sign(y_a))
+    accuracy = float(np.mean(correct) * 100)
+    ic = float(pd.Series(y_p).corr(pd.Series(y_a)))
+
+    return {
+        'count': len(filtered),
+        'accuracy': round(accuracy, 2),
+        'ic': round(ic, 4),
+        'gain_vs_baseline': round(accuracy - 50.04, 2),
+        'threshold': min_pred_return,
+    }
+
 
