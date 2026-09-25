@@ -120,7 +120,7 @@
           <mxGeometry x="15" y="242" width="190" height="32" as="geometry" />
         </mxCell>
 
-        <!-- Communication ORM <---> Models -->
+        <!-- Communication ORM &lt;   &gt; Models -->
         <mxCell id="e_mod_orm" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f172a;strokeWidth=1.5;startArrow=classic;endArrow=classic;" parent="server_box" edge="1" source="layer_models" target="orm_box">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -150,7 +150,7 @@
           <mxGeometry x="760" y="45" width="150" height="42" as="geometry" />
         </mxCell>
 
-        <!-- Communication routes/web <---> Middleware -->
+        <!-- Communication routes/web &lt;   &gt; Middleware -->
         <mxCell id="e_route_mw" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f172a;strokeWidth=1.5;startArrow=classic;endArrow=classic;" parent="server_box" edge="1" source="route_web" target="layer_middleware">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -202,7 +202,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- ORTHOGONAL DEPENDENCIES: Controllers -> Models -->
+        <!-- ORTHOGONAL DEPENDENCIES: Controllers  > Models -->
         <mxCell id="dep_anal_pred" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_anal" target="m_pred">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -239,7 +239,7 @@
           <mxGeometry x="300" y="95" width="115" height="42" as="geometry" />
         </mxCell>
 
-        <!-- Communication Controllers <---> Views -->
+        <!-- Communication Controllers &lt;   &gt; Views -->
         <mxCell id="e_ctrl_views" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#0f172a;strokeWidth=1.5;startArrow=classic;endArrow=classic;" parent="server_box" edge="1" source="layer_controllers" target="layer_views">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -275,12 +275,12 @@
           <mxGeometry x="15" y="86" width="190" height="24" as="geometry" />
         </mxCell>
 
-        <!-- Services -> Utils Dependency -->
+        <!-- Services  > Utils Dependency -->
         <mxCell id="dep_srv_utils" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="layer_services" target="layer_utils">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- Controllers -> Services Dependencies -->
+        <!-- Controllers  > Services Dependencies -->
         <mxCell id="dep_chat_rag" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_chat_api" target="s_rag">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
@@ -313,7 +313,7 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- CLIENT-SERVER ORANGE HTTP/REST EDGES -->
+        <!-- CLIENT SERVER ORANGE HTTP/REST EDGES -->
         <mxCell id="e_cli_web_req" value="Requests HTTP" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#f97316;strokeWidth=1.8;endArrow=classic;fontColor=#ea580c;fontSize=10;" parent="1" edge="1" source="client_pc" target="route_web">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
