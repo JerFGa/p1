@@ -1,0 +1,7 @@
+.env
+*.env
+openAI.env
+.venv/
+__pycache__/
+*.pyc
+db.sqlite3

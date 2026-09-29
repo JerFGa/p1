@@ -21,7 +21,7 @@ columnas en pantallas grandes-->
 {% for movie in movies %}
 <div v-for="movie in movies" class="col">
     <div class="card">
-    <img src="{{ movie.image.url }}" class="card-img-top" alt="...">
+    <img src="{{ movie.image.url }}" class="card-img-top" alt="{{ movie.title }}" onerror="this.onerror=null;this.src='/media/movie/images/default.jpg';">
         <div class="card-body">
             <h5 class="card-title">{{ movie.title }}</h5>
             <p class="card-text">{{ movie.description }}</p>
