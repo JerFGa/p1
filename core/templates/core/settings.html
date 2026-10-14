@@ -5,49 +5,54 @@
 
 {% block content %}
 <div class="flex-1 overflow-y-auto px-6 py-5 max-w-2xl">
-    <div class="mb-5">
-        <h2 class="text-base font-semibold text-white">Settings</h2>
-        <p class="text-xs mt-0.5" style="color: #334155;">Configure your FinancialRAG experience</p>
+    <div class="mb-5 flex items-center justify-between">
+        <div>
+            <h2 class="text-base font-semibold text-white">Settings</h2>
+            <p class="text-xs mt-0.5" style="color: #64748b;">Configure your FinancialRAG preferences & verified news sources</p>
+        </div>
+        <span id="savedIndicator" class="text-xs px-3 py-1 rounded-full transition-opacity duration-300 opacity-0" style="background: #071f0e; color: #34d399; border: 1px solid #064e3b;">
+            Saved ✓
+        </span>
     </div>
 
     <div class="rounded-xl overflow-hidden mb-4" style="background: #071428; border: 1px solid #0d2040;">
-        <div class="px-4 py-3 text-xs font-semibold" style="color: #64748b; border-bottom: 1px solid #0d2040;">Preferences</div>
+        <div class="px-4 py-3 text-xs font-semibold" style="color: #64748b; border-bottom: 1px solid #0d2040;">System Preferences</div>
 
         <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #071428;">
             <div>
                 <div class="text-sm" style="color: #e2e8f0;">Push notifications</div>
-                <div class="text-xs mt-0.5" style="color: #334155;">Alert me on major market events</div>
+                <div class="text-xs mt-0.5" style="color: #64748b;">Alert on high conviction ML predictions (&gt;1.5% return)</div>
             </div>
-            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 active" data-setting="notif" style="background: #059669; border: 1px solid #059669;">
-                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="left: calc(100% - 16px);"></span>
+            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 {% if user_settings.notif %}active{% endif %}" data-setting="notif" style="{% if user_settings.notif %}background: #059669; border: 1px solid #059669;{% else %}background: #132c57; border: 1px solid #1a3a6e;{% endif %}">
+                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="{% if user_settings.notif %}left: calc(100% - 16px);{% else %}left: 2px;{% endif %}"></span>
             </button>
         </div>
 
         <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #071428;">
             <div>
                 <div class="text-sm" style="color: #e2e8f0;">Auto AI summaries</div>
-                <div class="text-xs mt-0.5" style="color: #334155;">Summarize articles on the news feed automatically</div>
+                <div class="text-xs mt-0.5" style="color: #64748b;">Expand article summaries on the news feed automatically</div>
             </div>
-            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 active" data-setting="autoSumm" style="background: #059669; border: 1px solid #059669;">
-                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="left: calc(100% - 16px);"></span>
+            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 {% if user_settings.autoSumm %}active{% endif %}" data-setting="autoSumm" style="{% if user_settings.autoSumm %}background: #059669; border: 1px solid #059669;{% else %}background: #132c57; border: 1px solid #1a3a6e;{% endif %}">
+                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="{% if user_settings.autoSumm %}left: calc(100% - 16px);{% else %}left: 2px;{% endif %}"></span>
             </button>
         </div>
 
         <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #071428;">
             <div>
-                <div class="text-sm" style="color: #e2e8f0;">Dark mode</div>
-                <div class="text-xs mt-0.5" style="color: #334155;">Use dark color theme (recommended)</div>
+                <div class="text-sm" style="color: #e2e8f0;">Dark financial terminal mode</div>
+                <div class="text-xs mt-0.5" style="color: #64748b;">High contrast Bloomberg/TradingView dark theme</div>
             </div>
-            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 active" data-setting="darkMode" style="background: #059669; border: 1px solid #059669;">
-                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="left: calc(100% - 16px);"></span>
+            <button class="toggle-btn w-10 h-5 rounded-full relative transition-all duration-200 flex-shrink-0 {% if user_settings.darkMode %}active{% endif %}" data-setting="darkMode" style="{% if user_settings.darkMode %}background: #059669; border: 1px solid #059669;{% else %}background: #132c57; border: 1px solid #1a3a6e;{% endif %}">
+                <span class="toggle-dot absolute top-0.5 w-3.5 h-3.5 rounded-full bg-white transition-all duration-200" style="{% if user_settings.darkMode %}left: calc(100% - 16px);{% else %}left: 2px;{% endif %}"></span>
             </button>
         </div>
     </div>
 
     <div class="rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
         <div class="px-4 py-3 flex items-center justify-between" style="border-bottom: 1px solid #0d2040;">
-            <span class="text-xs font-semibold" style="color: #64748b;">News Sources</span>
-            <span id="sourceCount" class="text-xs" style="color: #334155;">4 active</span>
+            <span class="text-xs font-semibold" style="color: #64748b;">Active News Corpus Sources</span>
+            <span id="sourceCount" class="text-xs" style="color: #34d399;">{{ active_source_count }} active</span>
         </div>
         <div class="p-4 flex flex-wrap gap-2">
             {% for source in all_sources %}
@@ -62,6 +67,46 @@
 
 {% block extra_js %}
 <script>
+let saveTimeout = null;
+
+function notifySaved() {
+    const el = document.getElementById('savedIndicator');
+    el.style.opacity = '1';
+    clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => {
+        el.style.opacity = '0';
+    }, 2000);
+}
+
+function persistSettings() {
+    const notif = document.querySelector('.toggle-btn[data-setting="notif"]').classList.contains('active');
+    const autoSumm = document.querySelector('.toggle-btn[data-setting="autoSumm"]').classList.contains('active');
+    const darkMode = document.querySelector('.toggle-btn[data-setting="darkMode"]').classList.contains('active');
+    
+    const activeSources = [];
+    document.querySelectorAll('.source-btn.active').forEach(b => {
+        activeSources.push(b.dataset.source);
+    });
+
+    fetch('/api/settings/save/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            notif: notif,
+            autoSumm: autoSumm,
+            darkMode: darkMode,
+            active_sources: activeSources,
+        })
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.status === 'ok') {
+            notifySaved();
+        }
+    })
+    .catch(err => console.error("Error al persistir configuración:", err));
+}
+
 document.querySelectorAll('.toggle-btn').forEach(btn => {
     btn.addEventListener('click', function() {
         const dot = this.querySelector('.toggle-dot');
@@ -76,6 +121,7 @@ document.querySelectorAll('.toggle-btn').forEach(btn => {
             this.style.border = '1px solid #059669';
             dot.style.left = 'calc(100% - 16px)';
         }
+        persistSettings();
     });
 });
 
@@ -100,6 +146,7 @@ document.querySelectorAll('.source-btn').forEach(btn => {
             this.style.border = '1px solid #059669';
         }
         updateSourceCount();
+        persistSettings();
     });
 });
 </script>

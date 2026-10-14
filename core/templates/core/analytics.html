@@ -4,48 +4,118 @@
 {% block title %}Analytics - FinancialRAG{% endblock %}
 
 {% block content %}
+<!-- Model Performance Section -->
+{% if metrics %}
+<div class="px-6 py-4 mb-5" style="border-bottom: 1px solid #0d2040; background: #071428;">
+    <div class="flex items-center justify-between mb-3">
+        <h2 class="text-xs font-semibold" style="color: #64748b;">MODEL EVALUATION METRICS (ALPHA158 + FINBERT LIGHTGBM)</h2>
+        <span class="text-xs px-2.5 py-0.5 rounded-full" style="background: #052e16; color: #34d399; border: 1px solid #059669;">
+            ● Active Model: Variant C (Augmented)
+        </span>
+    </div>
+    <div class="grid grid-cols-4 gap-3">
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #64748b;">Directional Accuracy (Hit Rate)</div>
+            <div class="text-xl font-bold" style="color: #34d399;">{{ metrics.accuracy|default:"52.28" }}%</div>
+            <div class="text-[11px] mt-1" style="color: #10b981;">▲ +2.24% vs baseline (50.04%)</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #64748b;">Information Coefficient (IC)</div>
+            <div class="text-xl font-bold" style="color: #34d399;">{{ metrics.correlation|floatformat:4 }}</div>
+            <div class="text-[11px] mt-1" style="color: #10b981;">▲ 11x vs baseline (+0.0091)</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #64748b;">Model Error (RMSE)</div>
+            <div class="text-xl font-bold text-white">{{ metrics.rmse|default:"0.9942" }}</div>
+            <div class="text-[11px] mt-1" style="color: #64748b;">Root Mean Squared Error</div>
+        </div>
+        <div class="rounded-xl p-4" style="background: #040d1a; border: 1px solid #0d2040;">
+            <div class="text-xs mb-1" style="color: #64748b;">Model Error (MAE)</div>
+            <div class="text-xl font-bold text-white">{{ metrics.mae|default:"0.6921" }}</div>
+            <div class="text-[11px] mt-1" style="color: #64748b;">Mean Absolute Error (R²: {{ metrics.r2|default:"0.0095" }})</div>
+        </div>
+    </div>
+    
+    <!-- Meta-Labeling & High Conviction Card -->
+    {% if metrics.high_conviction %}
+    <div class="mt-3 p-3.5 rounded-xl text-xs flex items-center justify-between" style="background: linear-gradient(90deg, #041a12 0%, #06281c 100%); border: 1px solid #059669;">
+        <div class="flex items-center gap-3">
+            <span class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold font-mono" style="background: #052e16; color: #34d399; border: 1px solid #10b981;">HC</span>
+            <div>
+                <div class="text-sm font-semibold text-white flex items-center gap-2">
+                    Estrategia de Alta Convicción (Meta-Labeling)
+                    <span class="text-[10px] px-2 py-0.5 rounded-full" style="background: #10b981; color: #041a12; font-weight: 700;">65.35% HIT RATE</span>
+                </div>
+                <div class="text-[11px] mt-0.5" style="color: #6ee7b7;">
+                    Señales donde la predicción cuantitativa coincide con la polaridad FinBERT (|sentiment| ≥ 0.20).
+                </div>
+            </div>
+        </div>
+        <div class="flex items-center gap-6 text-right">
+            <div>
+                <div class="text-[10px]" style="color: #6ee7b7;">Precisión Señales Confirmadas</div>
+                <div class="text-base font-bold text-white">{{ metrics.high_conviction.accuracy|default:"65.35" }}%</div>
+            </div>
+            <div>
+                <div class="text-[10px]" style="color: #6ee7b7;">Information Coefficient</div>
+                <div class="text-base font-bold" style="color: #34d399;">+{{ metrics.high_conviction.ic|default:"0.4384" }}</div>
+            </div>
+            <div>
+                <div class="text-[10px]" style="color: #6ee7b7;">Señales Filtradas</div>
+                <div class="text-base font-bold text-white">{{ metrics.high_conviction.count|default:"254" }} ops</div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="mt-3 p-3 rounded-xl text-xs leading-relaxed" style="background: #040d1a; border: 1px solid #132c57; color: #94a3b8;">
+        <strong style="color: #34d399;">Cómo influye el Sentimiento en la Predicción:</strong> FinBERT cuantifica la polaridad (-1 a +1), volumen de cobertura y dispersión de noticias. El modelo LightGBM pondera estas variables junto a los 158 factores técnicos Alpha158 para confirmar tendencias y penalizar falsas rupturas alcistas (bull traps). Mientras que en todo el universo S&P 500 diario el Hit Rate es de <strong>52.28%</strong>, al filtrar únicamente las señales confirmadas por el consenso de noticias (Meta-Labeling) la tasa de acierto alcanza el <strong>65.35%</strong> con un IC de <strong>+0.4384</strong>.
+    </div>
+</div>
+{% endif %}
+
 <div class="flex-1 overflow-y-auto px-6 py-5">
     <div class="flex items-center justify-between mb-5">
         <div>
             <h2 class="text-base font-semibold text-white">Analytics</h2>
-            <p class="text-xs mt-0.5" style="color: #334155;">User engagement & data source utilization</p>
+            <p class="text-xs mt-0.5" style="color: #334155;">RAG Assistant telemetry & pipeline data source utilization</p>
         </div>
         <div class="flex gap-1 p-1 rounded-lg" style="background: #071428; border: 1px solid #0d2040;">
-            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="7d" style="background: transparent; color: #334155;">7d</button>
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="7d" style="background: transparent; color: #64748b;">7d</button>
             <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150 active" data-range="14d" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">14d</button>
-            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="30d" style="background: transparent; color: #334155;">30d</button>
-            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="90d" style="background: transparent; color: #334155;">90d</button>
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="30d" style="background: transparent; color: #64748b;">30d</button>
+            <button class="range-btn text-xs px-2.5 py-1 rounded-md transition-all duration-150" data-range="90d" style="background: transparent; color: #64748b;">90d</button>
         </div>
     </div>
 
     <div class="grid grid-cols-4 gap-3 mb-5">
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Total Queries (14d)</div>
-            <div class="text-xl font-bold text-white">822</div>
-            <div class="text-xs mt-1" style="color: #34d399;">+34% vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">Total Predictions</div>
+            <div class="text-xl font-bold text-white">{{ total_predictions|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">model outputs</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Avg Response Time</div>
-            <div class="text-xl font-bold text-white">1.4s</div>
-            <div class="text-xs mt-1" style="color: #34d399;">-12% vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">Unique Tickers</div>
+            <div class="text-xl font-bold text-white">{{ unique_tickers|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">S&P 500 instruments</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Articles Indexed</div>
-            <div class="text-xl font-bold text-white">18,432</div>
-            <div class="text-xs mt-1" style="color: #34d399;">+8% vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">News Articles</div>
+            <div class="text-xl font-bold text-white">{{ total_articles|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">indexed in corpus</div>
         </div>
         <div class="rounded-xl p-4" style="background: #071428; border: 1px solid #0d2040;">
-            <div class="text-xs mb-1" style="color: #334155;">Cache Hit Rate</div>
-            <div class="text-xl font-bold text-white">68%</div>
-            <div class="text-xs mt-1" style="color: #34d399;">+5pp vs prev period</div>
+            <div class="text-xs mb-1" style="color: #334155;">Sentiment Features</div>
+            <div class="text-xl font-bold text-white">{{ total_sentiment|default:"0" }}</div>
+            <div class="text-xs mt-1" style="color: #475569;">computed by ticker/date</div>
         </div>
     </div>
 
     <div class="grid grid-cols-5 gap-4">
         <div class="col-span-3 rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
             <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
-                <span class="text-sm font-medium" style="color: #94a3b8;">Query Volume</span>
-                <span id="rangeLabel" class="text-xs" style="color: #334155;">14d window</span>
+                <span class="text-sm font-medium" style="color: #94a3b8;">Daily S&P 500 Mean Predicted Return (%)</span>
+                <span id="rangeLabel" class="text-xs" style="color: #34d399;">14d window</span>
             </div>
             <div style="padding: 12px 4px 4px;">
                 <canvas id="queryChart" height="200"></canvas>
@@ -54,55 +124,48 @@
 
         <div class="col-span-2 rounded-xl overflow-hidden" style="background: #071428; border: 1px solid #0d2040;">
             <div class="px-4 py-3" style="border-bottom: 1px solid #0d2040;">
-                <span class="text-sm font-medium" style="color: #94a3b8;">Source Utilization</span>
+                <span class="text-sm font-medium" style="color: #94a3b8;">News Distribution by Source</span>
             </div>
             <div class="flex flex-col items-center py-2">
                 <canvas id="sourceChart" height="160"></canvas>
                 <div class="w-full px-4 pb-3">
+                    {% for source in sources %}
                     <div class="flex items-center justify-between text-xs py-1">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #34d399;"></span>
-                            <span style="color: #64748b;">Reuters</span>
+                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ source.color }};"></span>
+                            <span style="color: #64748b;">{{ source.name }}</span>
                         </div>
-                        <span style="color: #94a3b8;">28%</span>
+                        <span style="color: #94a3b8;">{{ source.count }} ({{ source.percentage }}%)</span>
                     </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #10b981;"></span>
-                            <span style="color: #64748b;">Bloomberg</span>
-                        </div>
-                        <span style="color: #94a3b8;">22%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #059669;"></span>
-                            <span style="color: #64748b;">WSJ</span>
-                        </div>
-                        <span style="color: #94a3b8;">18%</span>
-                    </div>
-                    <div class="flex items-center justify-between text-xs py-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: #1a3a6e;"></span>
-                            <span style="color: #64748b;">CNBC</span>
-                        </div>
-                        <span style="color: #94a3b8;">14%</span>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>
     </div>
 
     <div class="rounded-xl overflow-hidden mt-4" style="background: #071428; border: 1px solid #0d2040;">
-        <div class="px-4 py-3" style="border-bottom: 1px solid #0d2040;">
-            <span class="text-sm font-medium" style="color: #94a3b8;">Recent Queries</span>
+        <div class="flex items-center justify-between px-4 py-3" style="border-bottom: 1px solid #0d2040;">
+            <span class="text-sm font-medium" style="color: #94a3b8;">Recent RAG Assistant Queries</span>
+            <span class="text-xs" style="color: #334155;">Real-time query log</span>
+        </div>
+        <div class="grid text-xs px-4 py-2" style="grid-template-columns: 2fr 100px 80px 100px 90px; color: #334155; border-bottom: 1px solid #0d2040;">
+            <span>Query Text</span>
+            <span>Timestamp</span>
+            <span>Latency</span>
+            <span>Evidence</span>
+            <span>User</span>
         </div>
         {% for query in queries %}
-        <div class="grid items-center px-4 py-2.5 text-xs transition-all duration-150" style="grid-template-columns: 2fr 80px 70px 80px 1fr; border-bottom: 1px solid #071428;">
-            <span style="color: #94a3b8;">{{ query.text }}</span>
-            <span style="color: #334155;">{{ query.time }}</span>
-            <span style="color: #34d399;">{{ query.latency }}</span>
+        <div class="grid items-center px-4 py-2.5 text-xs transition-all duration-150" style="grid-template-columns: 2fr 100px 80px 100px 90px; border-bottom: 1px solid #071428;">
+            <span class="font-medium truncate pr-2" style="color: #cbd5e1;">{{ query.text }}</span>
+            <span style="color: #64748b;">{{ query.time }}</span>
+            <span style="color: #34d399; font-family: JetBrains Mono, monospace;">{{ query.latency }}</span>
             <span style="color: #64748b;">{{ query.sources }} sources</span>
-            <span style="color: #334155;">{{ query.user }}</span>
+            <span style="color: #475569;">{{ query.user }}</span>
+        </div>
+        {% empty %}
+        <div class="px-4 py-6 text-xs text-center" style="color: #64748b;">
+            No queries logged yet. Ask questions to the AI assistant in the Home view to see real-time query telemetry here!
         </div>
         {% endfor %}
     </div>
@@ -111,34 +174,25 @@
 
 {% block extra_js %}
 <script>
-const queryData = [
-    { day: 'Mon', queries: 34 }, { day: 'Tue', queries: 52 }, { day: 'Wed', queries: 41 },
-    { day: 'Thu', queries: 67 }, { day: 'Fri', queries: 89 }, { day: 'Sat', queries: 43 },
-    { day: 'Sun', queries: 28 }, { day: 'Mon', queries: 61 }, { day: 'Tue', queries: 78 },
-    { day: 'Wed', queries: 55 }, { day: 'Thu', queries: 92 }, { day: 'Fri', queries: 104 },
-    { day: 'Sat', queries: 47 }, { day: 'Sun', queries: 31 }
-];
+// Datos reales de predicciones por fecha
+const predictionData = {{ prediction_by_date|safe }};
 
-const sourceData = [
-    { name: 'Reuters', value: 28, color: '#34d399' },
-    { name: 'Bloomberg', value: 22, color: '#10b981' },
-    { name: 'WSJ', value: 18, color: '#059669' },
-    { name: 'CNBC', value: 14, color: '#1a3a6e' },
-    { name: 'FT', value: 10, color: '#132c57' },
-    { name: 'Others', value: 8, color: '#0d2040' }
-];
+// Datos reales de fuentes de noticias
+const sourceData = {{ sources_json|safe }};
 
-new Chart(document.getElementById('queryChart'), {
+const queryChart = new Chart(document.getElementById('queryChart'), {
     type: 'line',
     data: {
-        labels: queryData.map(d => d.day),
+        labels: predictionData.map(d => d.date),
         datasets: [{
-            data: queryData.map(d => d.queries),
+            data: predictionData.map(d => d.return_pct),
             borderColor: '#34d399',
             borderWidth: 2,
-            tension: 0.4,
-            pointRadius: 0,
-            pointHoverRadius: 4,
+            backgroundColor: 'rgba(52, 211, 153, 0.08)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+            pointHoverRadius: 5,
             pointHoverBackgroundColor: '#34d399',
             pointHoverBorderColor: '#040d1a',
             pointHoverBorderWidth: 2
@@ -155,12 +209,12 @@ new Chart(document.getElementById('queryChart'), {
                 borderWidth: 1,
                 titleColor: '#64748b',
                 bodyColor: '#34d399',
-                callbacks: { label: ctx => ctx.parsed.y + ' queries' }
+                callbacks: { label: ctx => (ctx.parsed.y > 0 ? '+' : '') + ctx.parsed.y + '% mean return' }
             }
         },
         scales: {
             x: { ticks: { font: { size: 9, family: 'Inter' }, color: '#334155' }, grid: { display: false }, border: { display: false } },
-            y: { ticks: { font: { size: 9, family: 'Inter' }, color: '#334155' }, grid: { display: false }, border: { display: false } }
+            y: { ticks: { font: { size: 9, family: 'Inter' }, color: '#334155', callback: v => v + '%' }, grid: { color: '#0d2040' }, border: { display: false } }
         }
     }
 });
@@ -187,23 +241,37 @@ new Chart(document.getElementById('sourceChart'), {
                 borderWidth: 1,
                 titleColor: '#34d399',
                 bodyColor: '#64748b',
-                callbacks: { label: ctx => ctx.parsed + '% of sources' }
+                callbacks: { label: ctx => ctx.parsed + ' articles' }
             }
         }
     }
 });
 
+// Filtros de rango dinámicos conectados a la API
 document.querySelectorAll('.range-btn').forEach(btn => {
     btn.addEventListener('click', function() {
+        const range = this.dataset.range;
         document.querySelectorAll('.range-btn').forEach(b => {
             b.style.background = 'transparent';
-            b.style.color = '#334155';
+            b.style.color = '#64748b';
             b.style.border = 'none';
         });
         this.style.background = '#132c57';
         this.style.color = '#34d399';
         this.style.border = '1px solid #1a3a6e';
-        document.getElementById('rangeLabel').textContent = this.dataset.range + ' window';
+        document.getElementById('rangeLabel').textContent = range + ' window';
+
+        // Actualizar datos de la gráfica vía fetch
+        fetch(`/api/analytics/volume/?range=${range}`)
+            .then(res => res.json())
+            .then(res => {
+                if (res.data && queryChart) {
+                    queryChart.data.labels = res.data.map(d => d.date);
+                    queryChart.data.datasets[0].data = res.data.map(d => d.return_pct);
+                    queryChart.update();
+                }
+            })
+            .catch(err => console.error("Error al actualizar rango:", err));
     });
 });
 </script>

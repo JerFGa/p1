@@ -4,37 +4,62 @@
 {% block title %}Home - FinancialRAG{% endblock %}
 
 {% block content %}
+<!-- Market Overview Section -->
+{% if stocks %}
+<div class="px-6 py-4" style="border-bottom: 1px solid #0d2040; background: #040d1a;">
+    <h2 class="text-xs font-semibold mb-3" style="color: #64748b;">MARKET OVERVIEW</h2>
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+        {% for stock in stocks %}
+        <div class="rounded-xl p-3" style="background: #071428; border: 1px solid #132c57;">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-sm font-bold" style="color: #e2e8f0;">{{ stock.ticker }}</span>
+                <span class="text-xs px-2 py-0.5 rounded-full" style="background: {{ stock.sentiment_bg }}; color: {{ stock.sentiment_color }};">
+                    {{ stock.sentiment }}
+                </span>
+            </div>
+            <div class="text-lg font-semibold" style="color: {% if stock.predicted_return > 0 %}#34d399{% else %}#f87171{% endif %};">
+                {{ stock.predicted_return|floatformat:2 }}%
+            </div>
+            <div class="text-xs mt-1" style="color: #334155;">
+                {{ stock.date }}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 <header class="flex items-center justify-between px-6 py-3 flex-shrink-0" style="border-bottom: 1px solid #0d2040; background: #040d1a; min-height: 64px;">
     <div>
-        <h1 class="text-sm font-semibold text-white">Financial News Assistant</h1>
-        <p class="text-xs" style="color: #334155;">Powered by RAG · Real-time market intelligence</p>
+        <h1 class="text-sm font-semibold text-white">{{ app_title|default:"Financial News Assistant" }}</h1>
+        <p class="text-xs" style="color: #334155;">{{ app_subtitle|default:"Powered by RAG · Real-time market intelligence" }}</p>
     </div>
     <div class="flex items-center gap-4">
-        <div class="text-xs px-3 py-1.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Session #4821</div>
+        <div class="text-xs px-3 py-1.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">{{ session_id|default:"Session" }}</div>
         <button id="newChatBtn" class="text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">New chat</button>
     </div>
 </header>
 
 <div id="messages" class="flex-1 overflow-y-auto px-6 py-5"></div>
 
+{% if suggested_queries %}
 <div id="chips" class="px-6 pb-3 flex flex-wrap gap-2">
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Analyze AMZN</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Analyze TSLA</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Fed Meeting Summary</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Compare AAPL vs MSFT</button>
-    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">Top movers this week</button>
+    {% for query in suggested_queries %}
+    <button class="chip-btn text-xs px-3 py-1.5 rounded-full transition-all duration-150" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">{{ query }}</button>
+    {% endfor %}
 </div>
+{% endif %}
 
 <div class="px-6 pb-5 flex-shrink-0" style="border-top: 1px solid #0d2040; padding-top: 16px;">
     <div class="flex items-end gap-3 rounded-2xl px-4 py-3" style="background: #071428; border: 1px solid #132c57;">
-        <textarea id="chatInput" rows="1" placeholder="Ask about any stock, market news, or financial event…" class="flex-1 bg-transparent resize-none outline-none text-sm leading-relaxed" style="color: #e2e8f0; max-height: 120px; min-height: 24px; caret-color: #34d399; font-family: Inter, sans-serif;"></textarea>
+        <textarea id="chatInput" rows="1" placeholder="{{ chat_placeholder|default:'Ask about any stock, market news, or financial event…' }}" class="flex-1 bg-transparent resize-none outline-none text-sm leading-relaxed" style="color: #e2e8f0; max-height: 120px; min-height: 24px; caret-color: #34d399; font-family: Inter, sans-serif;"></textarea>
         <button id="sendBtn" class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center transition-all duration-150 disabled:opacity-30 disabled:cursor-not-allowed" style="background: #132c57; color: #475569;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
             </svg>
         </button>
     </div>
-    <p class="text-center text-xs mt-2" style="color: #0d2040;">Enter to send · Shift+Enter for new line</p>
+    <p class="text-center text-xs mt-2" style="color: #0d2040;">{{ chat_instructions|default:"Enter to send · Shift+Enter for new line" }}</p>
 </div>
 
 <div id="referenceModal" class="fixed inset-0 hidden items-center justify-center z-50 p-6" style="background: rgba(4,13,26,0.85); backdrop-filter: blur(4px);">
@@ -55,7 +80,7 @@
             </div>
             <div id="modalSnippet" class="rounded-xl p-4 text-sm leading-relaxed" style="background: #040d1a; border: 1px solid #0d2040; color: #94a3b8;"></div>
             <div class="mt-4 flex gap-2">
-                <button class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article ↗</button>
+                <button id="openFullArticleBtn" class="flex-1 text-xs py-2 rounded-xl font-medium transition-all duration-150" style="background: #132c57; color: #34d399; border: 1px solid #1a3a6e;">Open full article</button>
                 <button id="dismissModal" class="text-xs px-4 py-2 rounded-xl transition-all duration-150" style="background: #0d2040; color: #64748b; border: 1px solid #132c57;">Dismiss</button>
             </div>
         </div>
@@ -65,34 +90,38 @@
 
 {% block extra_js %}
 <script>
-const AMZN_CITATIONS = [
-    { num: 1, title: 'AWS Revenue Hits Record $24.2B in Q4', source: 'Reuters', date: 'Jan 3, 2025', snippet: 'Amazon Web Services reported record quarterly revenue of $24.2 billion, a 19% year-over-year increase, driven by AI infrastructure demand and enterprise cloud migrations.', confidence: 'High' },
-    { num: 2, title: 'Amazon Prime Membership Tops 200M Globally', source: 'Bloomberg', date: 'Jan 5, 2025', snippet: 'Amazon disclosed Prime membership surpassed 200 million globally, with strong retention in North America and accelerating growth across Latin America.', confidence: 'High' },
-    { num: 3, title: 'AMZN Advertising Revenue Grows 27% YoY', source: 'WSJ', date: 'Jan 7, 2025', snippet: "Amazon's advertising segment hit $14.6B for the quarter, now its third-largest business unit, benefiting from Prime Video ad-supported tier launch.", confidence: 'Medium' }
-];
-
-const TSLA_CITATIONS = [
-    { num: 1, title: 'Tesla Q4 Deliveries Miss Estimates at 484,507', source: 'CNBC', date: 'Jan 2, 2025', snippet: 'Tesla delivered 484,507 vehicles in Q4 2024, slightly below analyst consensus of 510,000. Price cuts and rising competition in China were cited as key headwinds.', confidence: 'High' },
-    { num: 2, title: 'FSD v12.5 Beta Shows 40% Fewer Interventions', source: 'Electrek', date: 'Dec 28, 2024', snippet: "Tesla's Full Self-Driving version 12.5 beta testers report roughly 40% fewer manual interventions versus v12.3, marking significant AI model improvement.", confidence: 'Medium' }
-];
-
-let messages = [{ id: 0, role: 'agent', text: "Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from 42 real-time sources for you.", ts: formatTime(new Date()) }];
+let messages = [{ id: 0, role: 'agent', text: "{{ welcome_message|default:"Hello! I'm FinancialRAG, your AI-powered financial news assistant. Ask me about any stock, market event, or financial news — I fetch and analyze the latest data from our ML model and news sources." }}", ts: formatTime(new Date()) }];
 let loading = false;
 
 function formatTime(d) { return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }); }
 
-function buildReply(text) {
-    const t = text.toLowerCase();
-    if (t.includes('amzn') || t.includes('amazon')) {
-        return { text: "Amazon (AMZN) shows strong momentum across all three major segments. AWS continues its record-breaking trajectory [1], while Prime membership milestones signal robust consumer retention [2]. Advertising revenue growth is accelerating faster than analysts projected [3], now representing a $58B annual run rate.", citations: AMZN_CITATIONS, showChart: 'AMZN' };
+async function buildReply(text) {
+    try {
+        const response = await fetch('/api/chat/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: text })
+        });
+        
+        const data = await response.json();
+        if (data.status === 'ok') {
+            return {
+                text: data.text,
+                citations: data.citations && data.citations.length > 0 ? data.citations : null
+            };
+        } else {
+            return {
+                text: `Error procesando la consulta: ${data.error || 'Intenta de nuevo.'}`
+            };
+        }
+    } catch (e) {
+        console.error("Error al consultar el servicio RAG:", e);
+        return {
+            text: `No se pudo conectar con el motor RAG. Por favor intenta de nuevo en unos segundos.`
+        };
     }
-    if (t.includes('tsla') || t.includes('tesla')) {
-        return { text: "Tesla (TSLA) faces near-term delivery headwinds [1], but technological progress on autonomy remains a key differentiator [2]. Analyst consensus remains cautiously optimistic with a median 12-month target of $195. Margins are the key variable to watch in Q1 earnings.", citations: TSLA_CITATIONS, showChart: 'TSLA' };
-    }
-    if (t.includes('fed') || t.includes('fomc')) {
-        return { text: "The Federal Reserve held the federal funds rate at 5.25–5.50% in its latest FOMC meeting. Chair Powell emphasized patience before rate cuts, citing core PCE still running above the 2% target. Markets are pricing approximately two 25bp cuts by December 2025." };
-    }
-    return { text: `I searched the FinancialRAG pipeline for "${text}". The latest news index shows mixed signals — institutional sentiment is slightly bullish while retail flows remain neutral. I recommend monitoring upcoming earnings reports and macro releases for clearer directional signals.` };
 }
 
 function renderMessages() {
@@ -110,7 +139,7 @@ function renderMessages() {
         if (msg.citations) {
             content = `
                 <div class="font-medium text-xs mb-2 flex items-center gap-2" style="color: #34d399;">
-                    <span>▦</span> AI Analysis
+                    <span></span> AI Analysis
                     <span class="ml-auto text-xs px-2 py-0.5 rounded-full" style="background: #071428; color: #64748b; border: 1px solid #0d2040;">${msg.citations.length} sources</span>
                 </div>
                 <p>${msg.text.replace(/\[(\d+)\]/g, (m, n) => `<button class="citation-badge" data-num="${n}" style="display: inline-flex; align-items: center; justify-content: center; width: 16px; height: 16px; border-radius: 4px; font-size: 10px; font-weight: bold; margin: 0 2px; background: #132c57; color: #34d399; border: 1px solid #1a3a6e; cursor: pointer; vertical-align: super;">${n}</button>`)}</p>
@@ -159,7 +188,7 @@ function renderMessages() {
     document.getElementById('chips').style.display = messages.length === 1 && !loading ? 'flex' : 'none';
 }
 
-function send(text) {
+async function send(text) {
     if (!text.trim() || loading) return;
     const now = new Date();
     messages.push({ id: Date.now(), role: 'user', text: text.trim(), ts: formatTime(now) });
@@ -167,12 +196,10 @@ function send(text) {
     loading = true;
     renderMessages();
 
-    setTimeout(() => {
-        const reply = buildReply(text);
-        messages.push({ id: Date.now() + 1, role: 'agent', ts: formatTime(new Date()), ...reply });
-        loading = false;
-        renderMessages();
-    }, 1500);
+    const reply = await buildReply(text);
+    messages.push({ id: Date.now() + 1, role: 'agent', ts: formatTime(new Date()), ...reply });
+    loading = false;
+    renderMessages();
 }
 
 function showCitationModal(citation) {
@@ -186,6 +213,16 @@ function showCitationModal(citation) {
     confEl.style.background = citation.confidence === 'High' ? '#052e16' : '#1c1917';
     confEl.style.color = citation.confidence === 'High' ? '#34d399' : '#a8a29e';
     confEl.style.border = '1px solid ' + (citation.confidence === 'High' ? '#059669' : '#44403c');
+    
+    const fullBtn = document.getElementById('openFullArticleBtn');
+    if (fullBtn) {
+        fullBtn.textContent = 'Open full article';
+        fullBtn.onclick = () => {
+            document.getElementById('modalSnippet').innerHTML = `<div class="max-h-64 overflow-y-auto leading-relaxed">${citation.text || citation.snippet}</div>`;
+            fullBtn.textContent = 'Full article displayed ✓';
+        };
+    }
+
     document.getElementById('referenceModal').style.display = 'flex';
 }
 

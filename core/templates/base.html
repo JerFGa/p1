@@ -50,7 +50,7 @@
                     <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background: #34d399;"></span>
                     <span class="text-xs font-medium" style="color: #34d399;">Pipeline Active</span>
                 </div>
-                <div class="text-xs" style="color: #334155;">42 sources · updated 2m ago</div>
+                <div class="text-xs" style="color: #334155;">{{ pipeline_sources|default:"0" }} sources · updated {{ pipeline_updated|default:"just now" }}</div>
             </div>
 
             <button id="toggleSidebar" class="mx-2 mb-3 py-2 rounded-xl text-xs flex items-center justify-center gap-2 transition-all duration-150" style="border: 1px solid #0d2040; color: #334155;">
