@@ -97,27 +97,24 @@
           <mxGeometry x="15" y="60" width="190" height="26" as="geometry" />
         </mxCell>
 
-        <!-- APP/MODELS -->
-        <mxCell id="layer_models" value="&lt;b&gt;app/Models&lt;/b&gt;" style="swimlane;startSize=24;fillColor=none;strokeColor=#16a34a;strokeWidth=2;fontColor=#15803d;align=center;" parent="server_box" vertex="1">
+        <!-- CORE/MODELS -->
+        <mxCell id="layer_models" value="&lt;b&gt;core/models (Package)&lt;/b&gt;" style="swimlane;startSize=24;fillColor=none;strokeColor=#16a34a;strokeWidth=2;fontColor=#15803d;align=center;" parent="server_box" vertex="1">
           <mxGeometry x="250" y="160" width="220" height="315" as="geometry" />
         </mxCell>
-        <mxCell id="m_pred" value="StockPrediction" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="layer_models" vertex="1">
-          <mxGeometry x="15" y="32" width="190" height="32" as="geometry" />
+        <mxCell id="m_pred" value="stock_prediction.py&lt;br&gt;&lt;i&gt;StockPrediction&lt;/i&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;fontSize=10;" parent="layer_models" vertex="1">
+          <mxGeometry x="15" y="32" width="190" height="42" as="geometry" />
         </mxCell>
-        <mxCell id="m_news" value="NewsArticle" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="layer_models" vertex="1">
-          <mxGeometry x="15" y="74" width="190" height="32" as="geometry" />
+        <mxCell id="m_news" value="news_article.py&lt;br&gt;&lt;i&gt;NewsArticle&lt;/i&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;fontSize=10;" parent="layer_models" vertex="1">
+          <mxGeometry x="15" y="82" width="190" height="42" as="geometry" />
         </mxCell>
-        <mxCell id="m_sent" value="SentimentFeature" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="layer_models" vertex="1">
-          <mxGeometry x="15" y="116" width="190" height="32" as="geometry" />
+        <mxCell id="m_sent" value="sentiment_feature.py&lt;br&gt;&lt;i&gt;SentimentFeature&lt;/i&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;fontSize=10;" parent="layer_models" vertex="1">
+          <mxGeometry x="15" y="132" width="190" height="42" as="geometry" />
         </mxCell>
-        <mxCell id="m_port" value="Portfolio" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="layer_models" vertex="1">
-          <mxGeometry x="15" y="158" width="190" height="32" as="geometry" />
+        <mxCell id="m_chat" value="chat_query.py&lt;br&gt;&lt;i&gt;ChatQuery&lt;/i&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;fontSize=10;" parent="layer_models" vertex="1">
+          <mxGeometry x="15" y="182" width="190" height="42" as="geometry" />
         </mxCell>
-        <mxCell id="m_asset" value="PortfolioAsset" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="layer_models" vertex="1">
-          <mxGeometry x="15" y="200" width="190" height="32" as="geometry" />
-        </mxCell>
-        <mxCell id="m_chat" value="ChatQuery" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="layer_models" vertex="1">
-          <mxGeometry x="15" y="242" width="190" height="32" as="geometry" />
+        <mxCell id="m_proj" value="project.py&lt;br&gt;&lt;i&gt;Project&lt;/i&gt;" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;fontSize=10;" parent="layer_models" vertex="1">
+          <mxGeometry x="15" y="232" width="190" height="42" as="geometry" />
         </mxCell>
 
         <!-- Communication ORM &lt;   &gt; Models -->
@@ -155,42 +152,42 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
-        <!-- APP/HTTP/CONTROLLERS -->
-        <mxCell id="layer_controllers" value="&lt;b&gt;app/Http/Controllers&lt;/b&gt;" style="swimlane;startSize=24;fillColor=none;strokeColor=#16a34a;strokeWidth=2;fontColor=#15803d;align=center;" parent="server_box" vertex="1">
+        <!-- CORE/VIEWS -->
+        <mxCell id="layer_controllers" value="&lt;b&gt;core/views (Package)&lt;/b&gt;" style="swimlane;startSize=24;fillColor=none;strokeColor=#16a34a;strokeWidth=2;fontColor=#15803d;align=center;" parent="server_box" vertex="1">
           <mxGeometry x="500" y="115" width="440" height="360" as="geometry" />
         </mxCell>
-        <mxCell id="pkg_web" value="&lt;b&gt;/Web&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f1f5f9;strokeColor=#94a3b8;fontColor=#334155;align=center;" parent="layer_controllers" vertex="1">
+        <mxCell id="pkg_web" value="&lt;b&gt;pages.py (Web Views)&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f1f5f9;strokeColor=#94a3b8;fontColor=#334155;align=center;" parent="layer_controllers" vertex="1">
           <mxGeometry x="15" y="32" width="195" height="310" as="geometry" />
         </mxCell>
-        <mxCell id="c_home" value="HomeController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
+        <mxCell id="c_home" value="home(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
           <mxGeometry x="15" y="28" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_anal" value="AnalyticsController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
+        <mxCell id="c_anal" value="analytics(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
           <mxGeometry x="15" y="68" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_news" value="NewsfeedController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
+        <mxCell id="c_news" value="newsfeed(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
           <mxGeometry x="15" y="108" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_port" value="PortfolioController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
+        <mxCell id="c_port" value="portfolio(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
           <mxGeometry x="15" y="148" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_sett" value="SettingsController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
+        <mxCell id="c_sett" value="settings(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_web" vertex="1">
           <mxGeometry x="15" y="188" width="165" height="32" as="geometry" />
         </mxCell>
 
-        <mxCell id="pkg_api" value="&lt;b&gt;/Api&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f1f5f9;strokeColor=#94a3b8;fontColor=#334155;align=center;" parent="layer_controllers" vertex="1">
+        <mxCell id="pkg_api" value="&lt;b&gt;api.py (REST API)&lt;/b&gt;" style="swimlane;startSize=22;fillColor=#f1f5f9;strokeColor=#94a3b8;fontColor=#334155;align=center;" parent="layer_controllers" vertex="1">
           <mxGeometry x="230" y="32" width="195" height="310" as="geometry" />
         </mxCell>
-        <mxCell id="c_chat_api" value="ChatApiController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
+        <mxCell id="c_chat_api" value="api_chat(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
           <mxGeometry x="15" y="28" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_hist_api" value="HistoryApiController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
+        <mxCell id="c_hist_api" value="api_ticker_history(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
           <mxGeometry x="15" y="68" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_vol_api" value="VolumeApiController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
+        <mxCell id="c_vol_api" value="api_analytics_volume(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
           <mxGeometry x="15" y="108" width="165" height="32" as="geometry" />
         </mxCell>
-        <mxCell id="c_set_api" value="SettingsApiController" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
+        <mxCell id="c_set_api" value="api_save_settings(request)" style="rounded=1;arcSize=6;whiteSpace=wrap;html=1;fillColor=#dbeafe;strokeColor=#60a5fa;fontColor=#1e40af;" parent="pkg_api" vertex="1">
           <mxGeometry x="15" y="148" width="165" height="32" as="geometry" />
         </mxCell>
 
@@ -209,10 +206,10 @@
         <mxCell id="dep_news_art" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_news" target="m_news">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dep_port_mod" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_port" target="m_port">
+        <mxCell id="dep_port_mod" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_port" target="m_pred">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
-        <mxCell id="dep_port_ast" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_port" target="m_asset">
+        <mxCell id="dep_port_ast" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;strokeColor=#ef4444;strokeWidth=1.5;endArrow=classic;" parent="server_box" edge="1" source="c_port" target="m_sent">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
 
